@@ -86,6 +86,41 @@ body {
   background: #fff;
   box-shadow: 0 0 0 2px #004fc5 inset;
 }
+.service-card {
+  border: 1px solid #e1e1e1;
+  border-radius: 10px;
+  padding: 10px;
+  cursor: pointer;
+  background: #f9f9f9;
+  text-align: left;
+  transition: 0.15s;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: space-between;
+  position: relative;
+}
+.service-card .title {
+  font-weight: 700;
+  font-size: 15px;
+}
+.service-card .desc {
+  font-size: 13px;
+  color: #555;
+  margin-bottom: 6px;
+}
+.service-card .price {
+  font-weight: 700;
+  color: #004fc5;
+  font-size: 15px;
+  align-self: flex-end;
+}
+.service-card.selected {
+  border-color: #004fc5;
+  background: #fff;
+  box-shadow: 0 0 0 2px #004fc5 inset;
+}
+
 
 /* Form */
 .form-grid {
