@@ -1,6 +1,6 @@
-
 import os
 import uuid
+import base64
 from datetime import datetime
 from pathlib import Path
 from flask import Flask, render_template, request, redirect, url_for, jsonify, abort
@@ -74,14 +74,28 @@ def create_checkout():
         file = request.files.get(field)
         if file and file.filename and allowed_file(file.filename):
             fname = f"{uuid.uuid4().hex}_{secure_filename(file.filename)}"
-            fpath = UPLOAD_DIR/fname
+            fpath = UPLOAD_DIR / fname
             file.save(fpath)
             saved_files.append(fpath)
+
+    # === Semnătură (base64 PNG din canvas) ===
+    signature_data = form.get("signature_data", "")
+    if signature_data and signature_data.startswith("data:image/png;base64,"):
+        try:
+            b64 = signature_data.split(",", 1)[1]
+            raw = base64.b64decode(b64)
+            sig_name = f"{uuid.uuid4().hex}_signature.png"
+            sig_path = UPLOAD_DIR / sig_name
+            with open(sig_path, "wb") as f:
+                f.write(raw)
+            saved_files.append(sig_path)
+        except Exception as e:
+            print("[warn] failed to save signature:", e)
 
     # Persist a CSV/TSV log
     try:
         logline = f"{datetime.utcnow().isoformat()}\t{service_key}\t{full_name}\t{email}\t{phone}\t{cnp_cui}\t{notes}\t{';'.join(p.name for p in saved_files)}\n"
-        (DATA_DIR/"orders.tsv").open("a", encoding="utf-8").write(logline)
+        (DATA_DIR / "orders.tsv").open("a", encoding="utf-8").write(logline)
     except Exception as e:
         print("[warn] Failed to write log:", e)
 
@@ -148,7 +162,7 @@ def webhook():
                 attachments = []
                 uploads = (meta.get("uploads") or "").split(",") if meta.get("uploads") else []
                 for name in uploads:
-                    p = UPLOAD_DIR/name
+                    p = UPLOAD_DIR / name
                     if p.exists():
                         attachments.append(p)
                 send_email_with_attachments(subject, body, attachments)
