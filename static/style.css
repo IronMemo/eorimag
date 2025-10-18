@@ -1,80 +1,82 @@
-:root { --pad: 16px; --maxw: 860px; --radius: 10px; }
-* { box-sizing: border-box; }
-body { margin: 0; font-family: system-ui, Arial, sans-serif; color: #111; background: #f6f7fb; }
-.container { max-width: var(--maxw); margin: 40px auto; background: #fff; padding: 24px; border-radius: var(--radius); box-shadow: 0 10px 30px rgba(0,0,0,.06); }
-h1 { margin-top: 0; }
-.grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-label { display: flex; flex-direction: column; gap: 8px; font-size: 14px; }
-input, select { padding: 10px; border: 1px solid #d6d9e0; border-radius: 8px; font-size: 14px; }
-.file input { padding: 8px; }
-button, .btn {
-  display: inline-block; margin-top: 10px; padding: 12px 16px; border: 0; border-radius: 8px;
-  background: #0d6efd; color: #fff; font-weight: 600; cursor: pointer; text-decoration: none;
-}
-button:disabled { opacity: .6; cursor: not-allowed; }
-.muted { color: #666; margin-top: 8px; }
-@media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
+/* Reset mic */
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,Helvetica,Arial,sans-serif;color:#111;background:#f7f7f8;}
 
-/* ========== Layout două coloane (desktop) ========== */
+/* Layout două coloane (desktop) */
 .layout-two-col{
-  display: grid;
+  display:grid;
   grid-template-columns: 1fr 520px;
-  gap: 28px;
-  align-items: start;
-  padding: 24px;
-  max-width: 1200px;
-  margin: 0 auto;
+  gap:28px;
+  align-items:start;
+  padding:24px;
+  max-width:1200px;
+  margin:0 auto;
 }
 @media (max-width: 900px){
-  .layout-two-col{
-    grid-template-columns: 1fr;
-  }
+  .layout-two-col{ grid-template-columns: 1fr; }
 }
 
 /* Stânga */
 .left-info .logo-badge{
   display:inline-block;
-  padding: 8px 12px;
-  border-radius: 999px;
-  font-weight: 700;
-  font-size: 14px;
-  letter-spacing: .5px;
-  border: 1px solid #ddd;
-  background: #fff;
-  margin-bottom: 10px;
+  padding:8px 12px;
+  border-radius:999px;
+  font-weight:700;
+  font-size:14px;
+  letter-spacing:.5px;
+  border:1px solid #ddd;
+  background:#fff;
+  margin-bottom:10px;
 }
 .left-info h1{
-  font-size: 32px;
-  line-height: 1.15;
-  margin: 8px 0 8px;
+  font-size:32px;
+  line-height:1.15;
+  margin:8px 0 8px;
 }
 .left-info .tagline{
-  font-size: 16px;
+  font-size:16px;
   color:#444;
-  margin-bottom: 14px;
+  margin-bottom:14px;
 }
 .left-info .benefits{
-  padding-left: 18px;
+  padding-left:18px;
   color:#222;
 }
-.left-info .benefits li{ margin: 6px 0; }
+.left-info .benefits li{ margin:6px 0; }
 
-/* Dreapta */
+/* Dreapta – card formular */
 .card{
   background:#fff;
   border:1px solid #eee;
-  border-radius: 16px;
-  padding: 16px;
-  box-shadow: 0 6px 20px rgba(0,0,0,.06);
+  border-radius:16px;
+  padding:16px;
+  box-shadow:0 6px 20px rgba(0,0,0,.06);
 }
 
 /* Grid formular */
 .form-grid{
   display:grid;
   grid-template-columns: 1fr 1fr;
-  gap: 12px;
+  gap:12px;
+  margin-top:8px;
 }
-.form-grid .col-span{ grid-column: 1 / -1; }
+.form-grid label{
+  display:flex;
+  flex-direction:column;
+  gap:6px;
+  font-size:14px;
+}
+.form-grid input, .form-grid textarea, .form-grid select{
+  border:1px solid #ddd;
+  background:#fff;
+  border-radius:10px;
+  padding:10px 12px;
+  font-size:15px;
+  outline:none;
+}
+.form-grid input:focus, .form-grid textarea:focus, .form-grid select:focus{
+  border-color:#111;
+}
 @media (max-width: 700px){
   .form-grid{ grid-template-columns: 1fr; }
 }
@@ -84,90 +86,99 @@ button:disabled { opacity: .6; cursor: not-allowed; }
   display:grid;
   grid-template-columns: 1fr 1fr;
   gap:10px;
-  margin-bottom: 14px;
+  margin-bottom:14px;
 }
 @media (max-width: 520px){
   .service-grid{ grid-template-columns: 1fr; }
 }
 .service-card{
   display:flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 4px;
-  width: 100%;
+  flex-direction:column;
+  align-items:flex-start;
+  gap:4px;
+  width:100%;
   border:1px solid #e7e7e7;
-  border-radius: 12px;
+  border-radius:12px;
   background:#fafafa;
-  padding: 12px;
-  cursor: pointer;
+  padding:12px;
+  cursor:pointer;
   text-align:left;
-  transition: transform .1s ease, box-shadow .1s ease, border-color .1s ease;
+  transition: transform .1s ease, box-shadow .1s ease, border-color .1s ease, background .1s ease;
 }
 .service-card:hover{
   transform: translateY(-1px);
-  box-shadow: 0 4px 14px rgba(0,0,0,.06);
+  box-shadow:0 4px 14px rgba(0,0,0,.06);
   border-color:#ddd;
 }
 .service-card.selected{
-  border-color:#222;
+  border-color:#111;
   background:#fff;
-  box-shadow: 0 6px 18px rgba(0,0,0,.08);
+  box-shadow:0 6px 18px rgba(0,0,0,.08);
 }
 .service-card .title{ font-weight:700; }
-.service-card .desc{ font-size: 13px; color:#555; }
+.service-card .desc{ font-size:13px; color:#555; }
 
+/* Uploads */
 .uploads{
-  display: grid;
-  gap: 10px;
-  margin: 10px 0 14px;
+  display:grid;
+  gap:10px;
+  margin:10px 0 14px;
+}
+.uploads span{
+  display:block;
+  margin-bottom:6px;
+  font-size:14px;
+  color:#333;
+}
+.uploads input[type="file"]{
+  display:block;
+  width:100%;
 }
 
-.signature-block{
-  margin: 12px 0 16px;
-}
+/* Semnătură */
+.signature-block{ margin:12px 0 16px; }
 .sig-header{
   display:flex;
   align-items:center;
-  justify-content: space-between;
+  justify-content:space-between;
   gap:8px;
   margin-bottom:6px;
 }
 .sig-wrap{
   border:1px solid #ddd;
-  border-radius: 12px;
+  border-radius:12px;
   background:#fff;
-  padding: 8px;
-  overflow: hidden;
+  padding:8px;
+  overflow:hidden;
 }
 #sigpad{
   width:100%;
   max-width:100%;
   height:auto;
   display:block;
-  border-radius: 8px;
+  border-radius:8px;
   background:
     linear-gradient(transparent 49%, rgba(0,0,0,.04) 50%, transparent 51%),
     #fff;
-  background-size: 100% 40px; /* discret “liniat” */
+  background-size:100% 40px; /* discret “liniat” */
 }
-.sig-actions{
-  display:flex; gap:8px; margin-top:8px; flex-wrap:wrap;
-}
+.sig-actions{ display:flex; gap:8px; margin-top:8px; flex-wrap:wrap; }
 button.secondary{
   background:#f5f5f5; border:1px solid #ddd; color:#111;
+  border-radius:10px; padding:8px 12px; cursor:pointer;
 }
-.muted{ color:#666; font-size: 13px; }
 
-button#payBtn{
-  width: 100%;
-  border-radius: 10px;
-  padding: 12px 14px;
-  font-weight: 700;
-  border: none;
-  background: #111;
-  color: #fff;
-  cursor: pointer;
+/* Buton Pay */
+#payBtn{
+  width:100%;
+  border-radius:10px;
+  padding:12px 14px;
+  font-weight:700;
+  border:none;
+  background:#111;
+  color:#fff;
+  cursor:pointer;
 }
-button#payBtn:disabled{ opacity:.6; cursor: default; }
+#payBtn:disabled{ opacity:.6; cursor:default; }
 
-
+.muted{ color:#666; font-size:13px; }
