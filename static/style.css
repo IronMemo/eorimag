@@ -188,4 +188,26 @@ button.secondary{
   display: block;
   margin-bottom: 12px;
 }
+/* === LOGO RESPONSIVE === */
+.logo-img {
+  display: block;
+  height: auto;
+  width: 80px;              /* default pentru laptop / desktop (~2cm) */
+  margin-bottom: 12px;
+  object-fit: contain;
+}
 
+/* ecrane mari (monitoare mari >1200px) */
+@media (min-width: 1200px) {
+  .logo-img {
+    width: 100px;           /* puțin mai mare pe desktopuri largi */
+  }
+}
+
+/* tablete și telefoane (<900px) */
+@media (max-width: 900px) {
+  .logo-img {
+    width: 60px;            /* mai mic pe mobil (~1.5cm) */
+    margin-bottom: 8px;
+  }
+}
