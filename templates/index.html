@@ -3,28 +3,54 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>EORIeu – Obține codul EORI online</title>
+  <title>Eorimag – Cod EORI 100% online</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
-  <main class="container">
-    <section class="hero">
-      <h1>EORIeu</h1>
-      <p>Completează formularul, încarcă documentele și plătește online. Primești confirmare pe email.</p>
+  <main class="layout-two-col">
+    <!-- Coloana stânga: branding + beneficii scurte -->
+    <section class="left-info">
+      <div class="brand">
+        <div class="logo-badge">EORIMAG</div>
+        <h1>Cod EORI – simplu, 100% online</h1>
+        <p class="tagline">
+          Completezi în 3–5 minute. Plătești online. Semnezi digital. Noi procesăm.
+        </p>
+        <ul class="benefits">
+          <li>✔️ Formulare clare, pași ghidați</li>
+          <li>✔️ Încarci actele direct din telefon</li>
+          <li>✔️ Semnătură pe ecran (touch/mouse)</li>
+          <li>✔️ Confirmare pe email</li>
+        </ul>
+      </div>
     </section>
 
-    <section class="card">
+    <!-- Coloana dreapta: FORMULAR -->
+    <section class="right-form card">
       <form id="orderForm">
-        <div class="grid">
-          <label>
-            Tip serviciu*
-            <select name="service_key" required>
-              {% for key, label in options %}
-                <option value="{{ key }}">{{ label }}</option>
-              {% endfor %}
-            </select>
-          </label>
+        <!-- 4 opțiuni mari, clickabile -->
+        <div class="service-grid" id="serviceGrid" role="group" aria-label="Alege serviciul">
+          <input type="hidden" name="service_key" id="service_key" value="eori_ro">
+          <button type="button" class="service-card selected" data-key="eori_ro">
+            <span class="title">EORI România</span>
+            <span class="desc">PF / PJ – obținere cod nou</span>
+          </button>
+          <button type="button" class="service-card" data-key="eori_update">
+            <span class="title">Actualizare EORI</span>
+            <span class="desc">Modificare/actualizare date</span>
+          </button>
+          <button type="button" class="service-card" data-key="gb_eori">
+            <span class="title">GB EORI (UK)</span>
+            <span class="desc">Marea Britanie</span>
+          </button>
+          <button type="button" class="service-card" data-key="resend">
+            <span class="title">Retrimitere documente</span>
+            <span class="desc">Reprimi pe email</span>
+          </button>
+        </div>
 
+        <!-- Date solicitant -->
+        <div class="grid form-grid">
           <label>
             Nume complet*
             <input name="full_name" autocomplete="name" required>
@@ -47,10 +73,11 @@
 
           <label class="col-span">
             Observații
-            <textarea name="notes" rows="3" placeholder="Detalii utile pentru procesare"></textarea>
+            <textarea name="notes" rows="3" placeholder="Detalii utile pentru procesare (opțional)"></textarea>
           </label>
         </div>
 
+        <!-- Upload documente -->
         <div class="uploads">
           <div>
             <span>Carte identitate (față) – JPG/PNG/PDF</span>
@@ -66,6 +93,22 @@
           </div>
         </div>
 
+        <!-- Semnătură (canvas) -->
+        <div class="signature-block">
+          <div class="sig-header">
+            <strong>Semnătură</strong>
+            <span class="muted">Semnează cu mouse-ul sau degetul (pe telefon)</span>
+          </div>
+          <div class="sig-wrap">
+            <canvas id="sigpad" width="600" height="200"></canvas>
+          </div>
+          <div class="sig-actions">
+            <button type="button" id="sigClear" class="secondary">Șterge</button>
+            <button type="button" id="sigUndo" class="secondary">Undo</button>
+          </div>
+          <input type="hidden" name="signature_data" id="signature_data">
+        </div>
+
         <button type="submit" id="payBtn">Plătește</button>
         <p id="msg" class="muted"></p>
       </form>
@@ -73,27 +116,55 @@
   </main>
 
   <script>
-  const form = document.getElementById('orderForm');
-  const msg = document.getElementById('msg');
-  const btn = document.getElementById('payBtn');
+  // ====== Selectoare servicii (4 carduri) ======
+  const grid = document.getElementById('serviceGrid');
+  const serviceInput = document.getElementById('service_key');
 
-  form.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    msg.textContent = '';
-    btn.disabled = true;
-
-    try {
-      const fd = new FormData(form);
-      const res = await fetch('/create-checkout', { method: 'POST', body: fd });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'Eroare');
-
-      window.location.href = data.checkout_url;
-    } catch (err) {
-      msg.textContent = err.message || 'A apărut o eroare. Încearcă din nou.';
-      btn.disabled = false;
-    }
+  grid.addEventListener('click', (e) => {
+    const card = e.target.closest('.service-card');
+    if (!card) return;
+    [...grid.querySelectorAll('.service-card')].forEach(c => c.classList.remove('selected'));
+    card.classList.add('selected');
+    serviceInput.value = card.dataset.key;
   });
-  </script>
-</body>
-</html>
+
+  // ====== Signature Pad minimalist (fără librării) ======
+  const canvas = document.getElementById('sigpad');
+  const ctx = canvas.getContext('2d');
+  let drawing = false;
+  let points = [];
+  let strokes = []; // pentru Undo
+
+  function getPos(evt) {
+    const rect = canvas.getBoundingClientRect();
+    if (evt.touches && evt.touches[0]) {
+      return { x: evt.touches[0].clientX - rect.left, y: evt.touches[0].clientY - rect.top };
+    }
+    return { x: evt.clientX - rect.left, y: evt.clientY - rect.top };
+  }
+
+  function redraw() {
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    ctx.lineWidth = 2;
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+    ctx.strokeStyle = '#111';
+    strokes.forEach(stroke => {
+      ctx.beginPath();
+      stroke.forEach((p, i) => {
+        if (i===0) ctx.moveTo(p.x, p.y);
+        else ctx.lineTo(p.x, p.y);
+      });
+      ctx.stroke();
+    });
+    if (points.length) {
+      ctx.beginPath();
+      points.forEach((p, i) => {
+        if (i===0) ctx.moveTo(p.x, p.y);
+        else ctx.lineTo(p.x, p.y);
+      });
+      ctx.stroke();
+    }
+  }
+
+  const start = (e) => { drawing = true; points = []; strokes.push(points); points.push(getPos(e))
