@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="ro">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>EORIeu – Obține codul EORI online</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <main class="container">
+    <section class="hero">
+      <h1>EORIeu</h1>
+      <p>Completează formularul, încarcă documentele și plătește online. Primești confirmare pe email.</p>
+    </section>
+
+    <section class="card">
+      <form id="orderForm">
+        <div class="grid">
+          <label>
+            Tip serviciu*
+            <select name="service_key" required>
+              {% for key, label in options %}
+                <option value="{{ key }}">{{ label }}</option>
+              {% endfor %}
+            </select>
+          </label>
+
+          <label>
+            Nume complet*
+            <input name="full_name" autocomplete="name" required>
+          </label>
+
+          <label>
+            Email*
+            <input type="email" name="email" autocomplete="email" required>
+          </label>
+
+          <label>
+            Telefon*
+            <input name="phone" autocomplete="tel" required>
+          </label>
+
+          <label>
+            CNP/CUI*
+            <input name="cnp_cui" required>
+          </label>
+
+          <label class="col-span">
+            Observații
+            <textarea name="notes" rows="3" placeholder="Detalii utile pentru procesare"></textarea>
+          </label>
+        </div>
+
+        <div class="uploads">
+          <div>
+            <span>Carte identitate (față) – JPG/PNG/PDF</span>
+            <input type="file" name="id_front" accept=".pdf,.jpg,.jpeg,.png">
+          </div>
+          <div>
+            <span>Carte identitate (verso) – opțional</span>
+            <input type="file" name="id_back" accept=".pdf,.jpg,.jpeg,.png">
+          </div>
+          <div>
+            <span>Document suplimentar – opțional</span>
+            <input type="file" name="extra_doc" accept=".pdf,.jpg,.jpeg,.png">
+          </div>
+        </div>
+
+        <button type="submit" id="payBtn">Plătește</button>
+        <p id="msg" class="muted"></p>
+      </form>
+    </section>
+  </main>
+
+  <script>
+  const form = document.getElementById('orderForm');
+  const msg = document.getElementById('msg');
+  const btn = document.getElementById('payBtn');
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    msg.textContent = '';
+    btn.disabled = true;
+
+    try {
+      const fd = new FormData(form);
+      const res = await fetch('/create-checkout', { method: 'POST', body: fd });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Eroare');
+
+      window.location.href = data.checkout_url;
+    } catch (err) {
+      msg.textContent = err.message || 'A apărut o eroare. Încearcă din nou.';
+      btn.disabled = false;
+    }
+  });
+  </script>
+</body>
+</html>
