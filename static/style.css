@@ -1,213 +1,139 @@
-/* Reset mic */
-*{box-sizing:border-box}
-html,body{margin:0;padding:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,Helvetica,Arial,sans-serif;color:#111;background:#f7f7f8;}
-
-/* Layout două coloane (desktop) */
-.layout-two-col{
-  display:grid;
-  grid-template-columns: 1fr 520px;
-  gap:28px;
-  align-items:start;
-  padding:24px;
-  max-width:1200px;
-  margin:0 auto;
-}
-@media (max-width: 900px){
-  .layout-two-col{ grid-template-columns: 1fr; }
+body {
+  margin: 0;
+  font-family: system-ui, sans-serif;
+  background: #f4f6f9;
 }
 
-/* Stânga */
-.left-info .logo-badge{
-  display:inline-block;
-  padding:8px 12px;
-  border-radius:999px;
-  font-weight:700;
-  font-size:14px;
-  letter-spacing:.5px;
-  border:1px solid #ddd;
-  background:#fff;
-  margin-bottom:10px;
+/* Layout principal */
+.layout-two-col {
+  display: grid;
+  grid-template-columns: 340px 1fr;
+  gap: 28px;
+  align-items: start;
+  padding: 24px;
+  max-width: 1300px;
+  margin: 0 auto;
 }
-.left-info h1{
-  font-size:32px;
-  line-height:1.15;
-  margin:8px 0 8px;
-}
-.left-info .tagline{
-  font-size:16px;
-  color:#444;
-  margin-bottom:14px;
-}
-.left-info .benefits{
-  padding-left:18px;
-  color:#222;
-}
-.left-info .benefits li{ margin:6px 0; }
-
-/* Dreapta – card formular */
-.card{
-  background:#fff;
-  border:1px solid #eee;
-  border-radius:16px;
-  padding:16px;
-  box-shadow:0 6px 20px rgba(0,0,0,.06);
+@media (max-width: 900px) {
+  .layout-two-col {
+    grid-template-columns: 1fr;
+  }
 }
 
-/* Grid formular */
-.form-grid{
-  display:grid;
+/* Banda albastră stânga */
+.left-info {
+  background: linear-gradient(to bottom, #003399 0%, #004fc5 100%);
+  color: #fff;
+  padding: 30px 22px;
+  border-radius: 20px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+}
+.left-info h1 {
+  font-size: 26px;
+  margin: 10px 0;
+}
+.left-info .tagline {
+  color: #e7eaff;
+  font-size: 15px;
+  line-height: 1.4;
+}
+.left-info ul {
+  margin-top: 12px;
+  padding-left: 20px;
+  font-size: 15px;
+}
+
+/* Logo */
+.logo-img {
+  display: block;
+  width: 90px;
+  height: auto;
+  margin-bottom: 14px;
+}
+@media (max-width: 900px) {
+  .logo-img {
+    width: 70px;
+  }
+}
+
+/* Dreapta: card alb */
+.right-form {
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.07);
+  padding: 18px 20px;
+}
+
+/* Servicii */
+.service-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 10px;
+  margin-bottom: 14px;
+}
+.service-card {
+  border: 1px solid #e1e1e1;
+  border-radius: 10px;
+  padding: 10px;
+  cursor: pointer;
+  background: #f9f9f9;
+  text-align: center;
+  font-weight: 600;
+  transition: 0.15s;
+}
+.service-card.selected {
+  border-color: #004fc5;
+  background: #fff;
+  box-shadow: 0 0 0 2px #004fc5 inset;
+}
+
+/* Form */
+.form-grid {
+  display: grid;
   grid-template-columns: 1fr 1fr;
-  gap:12px;
-  margin-top:8px;
+  gap: 12px;
+  margin: 10px 0;
 }
-.form-grid label{
-  display:flex;
-  flex-direction:column;
-  gap:6px;
-  font-size:14px;
+@media (max-width: 700px) {
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
 }
-.form-grid input, .form-grid textarea, .form-grid select{
-  border:1px solid #ddd;
-  background:#fff;
-  border-radius:10px;
-  padding:10px 12px;
-  font-size:15px;
-  outline:none;
+label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 14px;
 }
-.form-grid input:focus, .form-grid textarea:focus, .form-grid select:focus{
-  border-color:#111;
+input[type=text], input[type=email], input[type=tel], input[type=file] {
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
 }
-@media (max-width: 700px){
-  .form-grid{ grid-template-columns: 1fr; }
-}
-
-/* 4 opțiuni clickabile */
-.service-grid{
-  display:grid;
-  grid-template-columns: 1fr 1fr;
-  gap:10px;
-  margin-bottom:14px;
-}
-@media (max-width: 520px){
-  .service-grid{ grid-template-columns: 1fr; }
-}
-.service-card{
-  display:flex;
-  flex-direction:column;
-  align-items:flex-start;
-  gap:4px;
-  width:100%;
-  border:1px solid #e7e7e7;
-  border-radius:12px;
-  background:#fafafa;
-  padding:12px;
-  cursor:pointer;
-  text-align:left;
-  transition: transform .1s ease, box-shadow .1s ease, border-color .1s ease, background .1s ease;
-}
-.service-card:hover{
-  transform: translateY(-1px);
-  box-shadow:0 4px 14px rgba(0,0,0,.06);
-  border-color:#ddd;
-}
-.service-card.selected{
-  border-color:#111;
-  background:#fff;
-  box-shadow:0 6px 18px rgba(0,0,0,.08);
-}
-.service-card .title{ font-weight:700; }
-.service-card .desc{ font-size:13px; color:#555; }
-
-/* Uploads */
-.uploads{
-  display:grid;
-  gap:10px;
-  margin:10px 0 14px;
-}
-.uploads span{
-  display:block;
-  margin-bottom:6px;
-  font-size:14px;
-  color:#333;
-}
-.uploads input[type="file"]{
-  display:block;
-  width:100%;
+input:focus {
+  border-color: #004fc5;
+  outline: none;
 }
 
 /* Semnătură */
-.signature-block{ margin:12px 0 16px; }
-.sig-header{
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:8px;
-  margin-bottom:6px;
-}
-.sig-wrap{
-  border:1px solid #ddd;
-  border-radius:12px;
-  background:#fff;
-  padding:8px;
-  overflow:hidden;
-}
-#sigpad{
-  width:100%;
-  max-width:100%;
-  height:auto;
-  display:block;
-  border-radius:8px;
-  background:
-    linear-gradient(transparent 49%, rgba(0,0,0,.04) 50%, transparent 51%),
-    #fff;
-  background-size:100% 40px; /* discret “liniat” */
-}
-.sig-actions{ display:flex; gap:8px; margin-top:8px; flex-wrap:wrap; }
-button.secondary{
-  background:#f5f5f5; border:1px solid #ddd; color:#111;
-  border-radius:10px; padding:8px 12px; cursor:pointer;
-}
+.signature-block { margin-top: 14px; }
+.sig-wrap { border: 1px solid #ccc; border-radius: 10px; background: #fff; }
+#sigpad { width: 100%; height: auto; display: block; background: #fff; border-radius: 8px; }
+.sig-actions { margin-top: 8px; display: flex; gap: 8px; }
+button.secondary { background: #eee; border: 1px solid #ccc; border-radius: 8px; cursor: pointer; }
 
-/* Buton Pay */
-#payBtn{
-  width:100%;
-  border-radius:10px;
-  padding:12px 14px;
-  font-weight:700;
-  border:none;
-  background:#111;
-  color:#fff;
-  cursor:pointer;
+/* Buton final */
+#payBtn {
+  margin-top: 14px;
+  width: 100%;
+  background: #004fc5;
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  padding: 12px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
 }
-#payBtn:disabled{ opacity:.6; cursor:default; }
-
-.muted{ color:#666; font-size:13px; }
-.logo-img {
-  width: 160px;
-  height: auto;
-  display: block;
-  margin-bottom: 12px;
-}
-/* === LOGO RESPONSIVE === */
-.logo-img {
-  display: block;
-  height: auto;
-  width: 80px;              /* default pentru laptop / desktop (~2cm) */
-  margin-bottom: 12px;
-  object-fit: contain;
-}
-
-/* ecrane mari (monitoare mari >1200px) */
-@media (min-width: 1200px) {
-  .logo-img {
-    width: 100px;           /* puțin mai mare pe desktopuri largi */
-  }
-}
-
-/* tablete și telefoane (<900px) */
-@media (max-width: 900px) {
-  .logo-img {
-    width: 60px;            /* mai mic pe mobil (~1.5cm) */
-    margin-bottom: 8px;
-  }
-}
+#payBtn:hover { background: #003e9d; }
+.muted { color: #666; font-size: 13px; margin-top: 4px; }
