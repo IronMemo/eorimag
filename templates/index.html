@@ -8,18 +8,18 @@
 </head>
 <body>
   <main class="layout-two-col">
-    <!-- Stânga: branding + beneficii scurte -->
+    <!-- Stânga: bandă albastră (instituțional) -->
     <section class="left-info">
       <div class="brand">
         <img src="{{ url_for('static', filename='logo-eorimag.png') }}" alt="Eorimag logo" class="logo-img">
         <h1>Cod EORI – simplu, 100% online</h1>
         <p class="tagline">
-          Completezi în 3–5 minute. Plătești online. Semnezi digital. Noi procesăm.
+          Platformă digitală pentru obținerea rapidă a codului EORI, cu semnătură electronică integrată.
         </p>
         <ul class="benefits">
           <li>✔️ Formulare clare, pași ghidați</li>
           <li>✔️ Încarci actele direct din telefon</li>
-          <li>✔️ Semnătură pe ecran (touch/mouse)</li>
+          <li>✔️ Semnătură digitală inclusă</li>
           <li>✔️ Confirmare pe email</li>
         </ul>
       </div>
@@ -28,79 +28,34 @@
     <!-- Dreapta: FORMULAR -->
     <section class="right-form card">
       <form id="orderForm">
-        <!-- 4 opțiuni mari, clickabile -->
-        <div class="service-grid" id="serviceGrid" role="radiogroup" aria-label="Alege serviciul">
+        <div class="service-grid" id="serviceGrid" role="radiogroup">
           <input type="hidden" name="service_key" id="service_key" value="eori_ro">
-
-          <button type="button" class="service-card selected" data-key="eori_ro" role="radio" aria-checked="true" tabindex="0">
-            <span class="title">EORI România</span>
-            <span class="desc">PF / PJ – obținere cod nou</span>
-          </button>
-
-          <button type="button" class="service-card" data-key="eori_update" role="radio" aria-checked="false" tabindex="0">
-            <span class="title">Actualizare EORI</span>
-            <span class="desc">Modificare/actualizare date</span>
-          </button>
-
-          <button type="button" class="service-card" data-key="gb_eori" role="radio" aria-checked="false" tabindex="0">
-            <span class="title">GB EORI (UK)</span>
-            <span class="desc">Marea Britanie</span>
-          </button>
-
-          <button type="button" class="service-card" data-key="resend" role="radio" aria-checked="false" tabindex="0">
-            <span class="title">Retrimitere documente</span>
-            <span class="desc">Reprimi pe email</span>
-          </button>
+          <button type="button" class="service-card selected" data-key="eori_ro">EORI România</button>
+          <button type="button" class="service-card" data-key="eori_update">Actualizare EORI</button>
+          <button type="button" class="service-card" data-key="gb_eori">GB EORI (UK)</button>
+          <button type="button" class="service-card" data-key="resend">Retrimitere documente</button>
         </div>
 
-        <!-- Date solicitant (FĂRĂ Observații) -->
         <div class="grid form-grid">
-          <label>
-            Nume complet*
-            <input name="full_name" autocomplete="name" required>
-          </label>
-
-          <label>
-            Email*
-            <input type="email" name="email" autocomplete="email" required>
-          </label>
-
-          <label>
-            Telefon*
-            <input name="phone" autocomplete="tel" required>
-          </label>
-
-          <label>
-            CNP/CUI*
-            <input name="cnp_cui" required>
-          </label>
+          <label>Nume complet*<input name="full_name" required></label>
+          <label>Email*<input type="email" name="email" required></label>
+          <label>Telefon*<input name="phone" required></label>
+          <label>CNP/CUI*<input name="cnp_cui" required></label>
         </div>
 
-        <!-- Upload documente -->
         <div class="uploads">
-          <div>
-            <span>Carte identitate (față) – JPG/PNG/PDF</span>
-            <input type="file" name="id_front" accept=".pdf,.jpg,.jpeg,.png">
-          </div>
-          <div>
-            <span>Carte identitate (verso) – opțional</span>
-            <input type="file" name="id_back" accept=".pdf,.jpg,.jpeg,.png">
-          </div>
-          <div>
-            <span>Document suplimentar – opțional</span>
-            <input type="file" name="extra_doc" accept=".pdf,.jpg,.jpeg,.png">
-          </div>
+          <div><span>Carte identitate (față)</span><input type="file" name="id_front" accept=".pdf,.jpg,.jpeg,.png"></div>
+          <div><span>Carte identitate (verso) – opțional</span><input type="file" name="id_back" accept=".pdf,.jpg,.jpeg,.png"></div>
+          <div><span>Document suplimentar – opțional</span><input type="file" name="extra_doc" accept=".pdf,.jpg,.jpeg,.png"></div>
         </div>
 
-        <!-- Semnătură (canvas) -->
+        <!-- Semnătură -->
         <div class="signature-block">
           <div class="sig-header">
             <strong>Semnătură</strong>
             <span class="muted">Semnează cu mouse-ul sau degetul (pe telefon)</span>
           </div>
-          <div class="sig-wrap">
-            <canvas id="sigpad" width="600" height="200"></canvas>
-          </div>
+          <div class="sig-wrap"><canvas id="sigpad" width="600" height="200"></canvas></div>
           <div class="sig-actions">
             <button type="button" id="sigClear" class="secondary">Șterge</button>
             <button type="button" id="sigUndo" class="secondary">Undo</button>
@@ -115,113 +70,31 @@
   </main>
 
   <script>
-  /* ===== Selecție servicii (robust) ===== */
-  const serviceInput = document.getElementById('service_key');
-  const cards = Array.from(document.querySelectorAll('.service-card'));
-
-  function selectCard(card) {
-    cards.forEach(c => {
-      const isSel = (c === card);
-      c.classList.toggle('selected', isSel);
-      c.setAttribute('aria-checked', isSel ? 'true' : 'false');
+    const serviceInput=document.getElementById('service_key');
+    document.querySelectorAll('.service-card').forEach(btn=>{
+      btn.onclick=()=>{document.querySelectorAll('.service-card').forEach(b=>b.classList.remove('selected'));btn.classList.add('selected');serviceInput.value=btn.dataset.key;}
     });
-    serviceInput.value = card.dataset.key;
-  }
 
-  cards.forEach(card => {
-    card.addEventListener('click', (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      selectCard(card);
-    });
-    card.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter' || e.key === ' ') {
-        e.preventDefault();
-        selectCard(card);
-      }
-    });
-  });
+    const canvas=document.getElementById('sigpad');
+    const ctx=canvas.getContext('2d');
+    let drawing=false,points=[],strokes=[];
+    function getPos(e){const r=canvas.getBoundingClientRect();if(e.touches)return{x:e.touches[0].clientX-r.left,y:e.touches[0].clientY-r.top};return{x:e.clientX-r.left,y:e.clientY-r.top};}
+    function redraw(){ctx.clearRect(0,0,canvas.width,canvas.height);ctx.lineWidth=2;ctx.lineCap='round';ctx.strokeStyle='#000';strokes.forEach(s=>{ctx.beginPath();s.forEach((p,i)=>i?ctx.lineTo(p.x,p.y):ctx.moveTo(p.x,p.y));ctx.stroke();});if(points.length){ctx.beginPath();points.forEach((p,i)=>i?ctx.lineTo(p.x,p.y):ctx.moveTo(p.x,p.y));ctx.stroke();}}
+    canvas.onmousedown=e=>{drawing=true;points=[];strokes.push(points);points.push(getPos(e));redraw();};
+    canvas.onmousemove=e=>{if(!drawing)return;points.push(getPos(e));redraw();};
+    window.onmouseup=()=>drawing=false;
+    canvas.addEventListener('touchstart',e=>{e.preventDefault();drawing=true;points=[];strokes.push(points);points.push(getPos(e));redraw();});
+    canvas.addEventListener('touchmove',e=>{e.preventDefault();if(!drawing)return;points.push(getPos(e));redraw();});
+    canvas.addEventListener('touchend',()=>drawing=false);
+    document.getElementById('sigClear').onclick=()=>{strokes=[];points=[];redraw();};
+    document.getElementById('sigUndo').onclick=()=>{strokes.pop();redraw();};
 
-  /* ===== Signature Pad minimalist ===== */
-  const canvas = document.getElementById('sigpad');
-  const ctx = canvas.getContext('2d');
-  let drawing = false;
-  let points = [];
-  let strokes = []; // pentru Undo
-
-  function getPos(evt) {
-    const rect = canvas.getBoundingClientRect();
-    if (evt.touches && evt.touches[0]) {
-      return { x: evt.touches[0].clientX - rect.left, y: evt.touches[0].clientY - rect.top };
-    }
-    return { x: evt.clientX - rect.left, y: evt.clientY - rect.top };
-  }
-
-  function redraw() {
-    ctx.clearRect(0,0,canvas.width,canvas.height);
-    ctx.lineWidth = 2;
-    ctx.lineCap = 'round';
-    ctx.lineJoin = 'round';
-    ctx.strokeStyle = '#111';
-    strokes.forEach(stroke => {
-      ctx.beginPath();
-      stroke.forEach((p, i) => i===0 ? ctx.moveTo(p.x, p.y) : ctx.lineTo(p.x, p.y));
-      ctx.stroke();
-    });
-    if (points.length) {
-      ctx.beginPath();
-      points.forEach((p, i) => i===0 ? ctx.moveTo(p.x, p.y) : ctx.lineTo(p.x, p.y));
-      ctx.stroke();
-    }
-  }
-
-  const start = (e) => { drawing = true; points = []; strokes.push(points); points.push(getPos(e)); redraw(); };
-  const move  = (e) => { if (!drawing) return; points.push(getPos(e)); redraw(); };
-  const end   = () => { drawing = false; };
-
-  canvas.addEventListener('mousedown', start);
-  canvas.addEventListener('mousemove', move);
-  window.addEventListener('mouseup', end);
-
-  canvas.addEventListener('touchstart', (e)=>{e.preventDefault(); start(e);}, {passive:false});
-  canvas.addEventListener('touchmove',  (e)=>{e.preventDefault(); move(e);}, {passive:false});
-  canvas.addEventListener('touchend',   (e)=>{e.preventDefault(); end();}, {passive:false});
-
-  document.getElementById('sigClear').addEventListener('click', () => { strokes = []; points = []; redraw(); });
-  document.getElementById('sigUndo').addEventListener('click', () => { strokes.pop(); points = []; redraw(); });
-
-  function sigIsEmpty() { return strokes.length === 0; }
-
-  /* ===== Submit -> Stripe ===== */
-  const form = document.getElementById('orderForm');
-  const msg  = document.getElementById('msg');
-  const btn  = document.getElementById('payBtn');
-  const sigHidden = document.getElementById('signature_data');
-
-  form.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    msg.textContent = '';
-    btn.disabled = true;
-
-    // atașează semnătura PNG dacă există
-    if (!sigIsEmpty()) {
-      sigHidden.value = canvas.toDataURL('image/png');
-    } else {
-      sigHidden.value = '';
-    }
-
-    try {
-      const fd = new FormData(form);
-      const res = await fetch('/create-checkout', { method: 'POST', body: fd });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'Eroare');
-
-      window.location.href = data.checkout_url;
-    } catch (err) {
-      msg.textContent = err.message || 'A apărut o eroare. Încearcă din nou.';
-      btn.disabled = false;
-    }
-  });
+    const form=document.getElementById('orderForm'),msg=document.getElementById('msg'),btn=document.getElementById('payBtn'),sigHidden=document.getElementById('signature_data');
+    form.onsubmit=async e=>{
+      e.preventDefault();msg.textContent='';btn.disabled=true;
+      sigHidden.value=strokes.length?canvas.toDataURL('image/png'):'';
+      try{const fd=new FormData(form);const r=await fetch('/create-checkout',{method:'POST',body:fd});const d=await r.json();if(!r.ok)throw new Error(d.error||'Eroare');window.location.href=d.checkout_url;}catch(err){msg.textContent=err.message;btn.disabled=false;}
+    };
   </script>
 </body>
 </html>
