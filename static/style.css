@@ -1,10 +1,14 @@
+/* ---------- Bază ---------- */
+* { box-sizing: border-box; }
+
 body {
   margin: 0;
-  font-family: system-ui, sans-serif;
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", "Liberation Sans", sans-serif;
   background: #f4f6f9;
+  color: #111;
 }
 
-/* Layout principal */
+/* ---------- Layout principal ---------- */
 .layout-two-col {
   display: grid;
   grid-template-columns: 340px 1fr;
@@ -14,13 +18,12 @@ body {
   max-width: 1300px;
   margin: 0 auto;
 }
+
 @media (max-width: 900px) {
-  .layout-two-col {
-    grid-template-columns: 1fr;
-  }
+  .layout-two-col { grid-template-columns: 1fr; }
 }
 
-/* Banda albastră stânga */
+/* ---------- Coloana stângă (bandă albastră) ---------- */
 .left-info {
   background: linear-gradient(to bottom, #003399 0%, #004fc5 100%);
   color: #fff;
@@ -28,35 +31,38 @@ body {
   border-radius: 20px;
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
 }
+
 .left-info h1 {
   font-size: 26px;
   margin: 10px 0;
 }
+
 .left-info .tagline {
   color: #e7eaff;
   font-size: 15px;
   line-height: 1.4;
 }
+
 .left-info ul {
   margin-top: 12px;
   padding-left: 20px;
   font-size: 15px;
 }
 
-/* Logo */
-.logo-img {
+/* ---------- Logo ---------- */
+.logo-img{
   display: block;
-  width: 90px;
-  height: auto;
+  height: 56px;            /* ajustează 48–64px după preferință */
+  width: auto;
+  image-rendering: auto;
   margin-bottom: 14px;
 }
-@media (max-width: 900px) {
-  .logo-img {
-    width: 70px;
-  }
+
+@media (max-width: 640px){
+  .logo-img{ height: 44px; }
 }
 
-/* Dreapta: card alb */
+/* ---------- Dreapta: card formular ---------- */
 .right-form {
   background: #fff;
   border-radius: 16px;
@@ -64,100 +70,130 @@ body {
   padding: 18px 20px;
 }
 
-/* Servicii */
+/* ---------- Servicii ---------- */
 .service-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
   gap: 10px;
   margin-bottom: 14px;
 }
-.service-card {
-  border: 1px solid #e1e1e1;
-  border-radius: 10px;
-  padding: 10px;
-  cursor: pointer;
-  background: #f9f9f9;
-  text-align: center;
-  font-weight: 600;
-  transition: 0.15s;
-}
-.service-card.selected {
-  border-color: #004fc5;
-  background: #fff;
-  box-shadow: 0 0 0 2px #004fc5 inset;
-}
-.service-card {
+
+.service-card{
   border: 1px solid #e1e1e1;
   border-radius: 10px;
   padding: 10px;
   cursor: pointer;
   background: #f9f9f9;
   text-align: left;
-  transition: 0.15s;
+  transition: transform .12s ease, box-shadow .12s ease, background .12s ease;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
   justify-content: space-between;
   position: relative;
 }
+
+.service-card:hover{
+  transform: translateY(-1px);
+  box-shadow: 0 2px 10px rgba(0,0,0,.06);
+}
+
+.service-card.selected{
+  border-color: #004fc5;
+  background: #fff;
+  box-shadow: 0 0 0 2px #004fc5 inset;
+}
+
 .service-card .title {
   font-weight: 700;
   font-size: 15px;
 }
+
 .service-card .desc {
   font-size: 13px;
   color: #555;
   margin-bottom: 6px;
 }
+
 .service-card .price {
   font-weight: 700;
   color: #004fc5;
   font-size: 15px;
   align-self: flex-end;
 }
-.service-card.selected {
-  border-color: #004fc5;
-  background: #fff;
-  box-shadow: 0 0 0 2px #004fc5 inset;
-}
 
-
-/* Form */
+/* ---------- Form ---------- */
 .form-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 12px;
   margin: 10px 0;
 }
+
 @media (max-width: 700px) {
-  .form-grid {
-    grid-template-columns: 1fr;
-  }
+  .form-grid { grid-template-columns: 1fr; }
 }
+
 label {
   display: flex;
   flex-direction: column;
   gap: 6px;
   font-size: 14px;
 }
-input[type=text], input[type=email], input[type=tel], input[type=file] {
+
+input,
+input[type=text],
+input[type=email],
+input[type=tel],
+input[type=file]{
   padding: 10px 12px;
   border-radius: 8px;
   border: 1px solid #ccc;
-}
-input:focus {
-  border-color: #004fc5;
-  outline: none;
+  background: #fff;
+  font: inherit;
 }
 
-/* Semnătură */
+input:focus,
+button:focus,
+.service-card:focus{
+  outline: 2px solid #004fc5;
+  outline-offset: 2px;
+}
+
+/* ---------- Semnătură ---------- */
 .signature-block { margin-top: 14px; }
-.sig-wrap { border: 1px solid #ccc; border-radius: 10px; background: #fff; }
-#sigpad { width: 100%; height: auto; display: block; background: #fff; border-radius: 8px; }
-.sig-actions { margin-top: 8px; display: flex; gap: 8px; }
-button.secondary { background: #eee; border: 1px solid #ccc; border-radius: 8px; cursor: pointer; }
 
-/* Buton final */
+.sig-wrap {
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  background: #fff;
+  overflow: hidden;
+}
+
+#sigpad {
+  width: 100%;
+  height: auto;
+  display: block;
+  background: #fff;
+  border-radius: 8px;
+}
+
+.sig-actions {
+  margin-top: 8px;
+  display: flex;
+  gap: 8px;
+}
+
+/* ---------- Butoane ---------- */
+button.secondary {
+  background: #eee;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  cursor: pointer;
+  padding: 8px 10px;
+  font: inherit;
+}
+
 #payBtn {
   margin-top: 14px;
   width: 100%;
@@ -170,5 +206,8 @@ button.secondary { background: #eee; border: 1px solid #ccc; border-radius: 8px;
   font-weight: 600;
   cursor: pointer;
 }
+
 #payBtn:hover { background: #003e9d; }
+
+/* ---------- Text secundar ---------- */
 .muted { color: #666; font-size: 13px; margin-top: 4px; }
