@@ -1,3 +1,5 @@
+:root { color-scheme: light; }  /* împiedică forțarea dark mode pe formulare */
+
 /* ---------- Bază ---------- */
 * { box-sizing: border-box; }
 
