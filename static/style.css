@@ -50,17 +50,21 @@ body {
 }
 
 /* ---------- Logo ---------- */
-.logo-img{
+.logo-img {
   display: block;
-  height: 56px;            /* ajustează 48–64px după preferință */
-  width: auto;
+  height: 80px;       /* crește de la 56px → 80px */
+  width: auto;        /* se ajustează automat */
   image-rendering: auto;
-  margin-bottom: 14px;
+  margin-bottom: 16px;
+  transition: height 0.2s ease;
 }
 
-@media (max-width: 640px){
-  .logo-img{ height: 44px; }
+@media (max-width: 640px) {
+  .logo-img {
+    height: 60px;     /* pentru mobil */
+  }
 }
+
 
 /* ---------- Dreapta: card formular ---------- */
 .right-form {
