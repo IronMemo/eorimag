@@ -1,62 +1,262 @@
-<form id="orderForm">
-  <!-- 4 opțiuni mari, cu preț -->
-  <div class="service-grid" id="serviceGrid" role="radiogroup" aria-label="Alege serviciul">
-    <input type="hidden" name="service_key" id="service_key" value="eori_ro">
+<!doctype html>
+<html lang="ro">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>EORIMAG – Rapid, simplu, 100% online</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
 
-    <button type="button" class="service-card selected" data-key="eori_ro">
-      <span class="title">EORI România</span>
-      <span class="desc">PF / PJ – obținere cod nou</span>
-      <span class="price">75 lei</span>
-    </button>
+  <div class="layout-two-col">
+    <!-- Coloana stângă (informativă) -->
+    <aside class="left-info">
+      <img src="{{ url_for('static', filename='logo-eorieu.png') }}" alt="eorieu.ro" class="logo-img" />
+      <h1>Rapid, simplu,<br>100% online</h1>
+      <p class="tagline">
+        Completezi formularul, atașezi actele &mdash; noi depunem solicitarea la
+        autoritatea vamală. Primești confirmarea pe email.
+      </p>
+      <ul>
+        <li>Formular scurt &amp; clar</li>
+        <li>Semnătură digitală în pagină</li>
+        <li>Plată securizată prin Stripe</li>
+        <li>Suport prin email</li>
+      </ul>
+    </aside>
 
-    <button type="button" class="service-card" data-key="eori_update">
-      <span class="title">Actualizare EORI</span>
-      <span class="desc">Modificare/actualizare date</span>
-      <span class="price">75 lei</span>
-    </button>
+    <!-- Coloana dreaptă (formular) -->
+    <main class="right-form">
+      <form id="orderForm" enctype="multipart/form-data" novalidate>
+        <!-- Servicii -->
+        <div class="service-grid" id="serviceGrid" role="radiogroup" aria-label="Alege serviciul">
+          <input type="hidden" name="service_key" id="service_key" value="eori_ro">
 
-    <button type="button" class="service-card" data-key="gb_eori">
-      <span class="title">GB EORI (UK)</span>
-      <span class="desc">Marea Britanie</span>
-      <span class="price">149 lei</span>
-    </button>
+          <button type="button" class="service-card selected" data-key="eori_ro" aria-pressed="true">
+            <span class="title">Obținere cod EORI</span>
+            <span class="desc">Persoană fizică sau juridică</span>
+            <span class="price">79 RON</span>
+          </button>
 
-    <button type="button" class="service-card" data-key="resend">
-      <span class="title">Retrimitere documente</span>
-      <span class="desc">Reprimi pe email</span>
-      <span class="price">50 lei</span>
-    </button>
+          <button type="button" class="service-card" data-key="eori_update" aria-pressed="false">
+            <span class="title">Actualizare cod EORI</span>
+            <span class="desc">Schimbare date / adresă</span>
+            <span class="price">79 RON</span>
+          </button>
+
+          <button type="button" class="service-card" data-key="gb_eori" aria-pressed="false">
+            <span class="title">Obținere GB EORI</span>
+            <span class="desc">Pentru operațiuni cu UK</span>
+            <span class="price">149 RON</span>
+          </button>
+
+          <button type="button" class="service-card" data-key="resend" aria-pressed="false">
+            <span class="title">Retrimitere cod EORI valid</span>
+            <span class="desc">Găsire și trimitere pe email</span>
+            <span class="price">49 RON</span>
+          </button>
+        </div>
+
+        <!-- Date solicitant -->
+        <div class="grid form-grid">
+          <label>Nume și prenume* 
+            <input name="full_name" placeholder="Ex. Popescu Andrei" required>
+          </label>
+          <label>Companie (opțional) 
+            <input name="company" placeholder="Ex. SC Exemplu SRL">
+          </label>
+          <label>Email* 
+            <input type="email" name="email" placeholder="adresa@exemplu.ro" required>
+          </label>
+          <label>Telefon* 
+            <input type="tel" name="phone" placeholder="07xx xxx xxx" required>
+          </label>
+        </div>
+
+        <label>CNP/CUI* 
+          <input name="cnp_cui" required>
+        </label>
+
+        <!-- Semnătură -->
+        <div class="signature-block">
+          <div class="sig-header">
+            <strong>Semnătură *</strong>
+            <span class="muted">Semnează cu mouse-ul sau degetul (pe telefon)</span>
+          </div>
+          <div class="sig-wrap">
+            <canvas id="sigpad" width="600" height="200"></canvas>
+          </div>
+          <div class="sig-actions">
+            <button type="button" id="sigClear" class="secondary">Șterge semnătura</button>
+            <button type="button" id="sigUndo" class="secondary">Undo</button>
+          </div>
+          <input type="hidden" name="signature_data" id="signature_data" required>
+        </div>
+
+        <!-- Upload documente -->
+        <div class="uploads" style="margin-top:12px">
+          <div>
+            <span>Carte de identitate – față (JPG/PNG/PDF)</span>
+            <input type="file" name="id_front" accept=".pdf,.jpg,.jpeg,.png">
+          </div>
+          <div>
+            <span>Carte de identitate – verso (opțional)</span>
+            <input type="file" name="id_back" accept=".pdf,.jpg,.jpeg,.png">
+          </div>
+          <div>
+            <span>Document suplimentar – opțional</span>
+            <input type="file" name="extra_doc" accept=".pdf,.jpg,.jpeg,.png">
+          </div>
+        </div>
+
+        <!-- Observații -->
+        <label style="margin-top:12px">Observații (opțional)
+          <input name="notes" placeholder="Detalii utile pentru solicitare">
+        </label>
+
+        <!-- Total + Submit -->
+        <div style="display:flex; gap:10px; align-items:center; margin-top:12px;">
+          <div id="totalBox" class="secondary" style="padding:10px 12px; border-radius:8px; border:1px solid #ddd;">
+            <strong>Total estimat:</strong> <span id="totalVal">79 RON</span>
+          </div>
+          <button type="submit" id="payBtn">Trimite solicitarea</button>
+        </div>
+        <p id="msg" class="muted"></p>
+      </form>
+    </main>
   </div>
 
-  <!-- Date solicitant -->
-  <div class="grid form-grid">
-    <label>Nume complet*<input name="full_name" required></label>
-    <label>Email*<input type="email" name="email" required></label>
-    <label>Telefon*<input name="phone" required></label>
-    <label>CNP/CUI*<input name="cnp_cui" required></label>
-  </div>
+  <script>
+    // --- Selectarea serviciului + total ---
+    const serviceGrid = document.getElementById('serviceGrid');
+    const serviceKeyEl = document.getElementById('service_key');
+    const totalVal = document.getElementById('totalVal');
 
-  <!-- Upload documente -->
-  <div class="uploads">
-    <div><span>Carte identitate (față) – JPG/PNG/PDF</span><input type="file" name="id_front" accept=".pdf,.jpg,.jpeg,.png"></div>
-    <div><span>Carte identitate (verso) – opțional</span><input type="file" name="id_back" accept=".pdf,.jpg,.jpeg,.png"></div>
-    <div><span>Document suplimentar – opțional</span><input type="file" name="extra_doc" accept=".pdf,.jpg,.jpeg,.png"></div>
-  </div>
+    const PRICE_LABELS = {
+      eori_ro: '79 RON',
+      eori_update: '79 RON',
+      gb_eori: '149 RON',
+      resend: '49 RON'
+    };
 
-  <!-- Semnătură -->
-  <div class="signature-block">
-    <div class="sig-header">
-      <strong>Semnătură</strong>
-      <span class="muted">Semnează cu mouse-ul sau degetul (pe telefon)</span>
-    </div>
-    <div class="sig-wrap"><canvas id="sigpad" width="600" height="200"></canvas></div>
-    <div class="sig-actions">
-      <button type="button" id="sigClear" class="secondary">Șterge</button>
-      <button type="button" id="sigUndo" class="secondary">Undo</button>
-    </div>
-    <input type="hidden" name="signature_data" id="signature_data">
-  </div>
+    serviceGrid.addEventListener('click', (e) => {
+      const btn = e.target.closest('.service-card');
+      if (!btn) return;
+      document.querySelectorAll('.service-card').forEach(b => {
+        b.classList.remove('selected');
+        b.setAttribute('aria-pressed', 'false');
+      });
+      btn.classList.add('selected');
+      btn.setAttribute('aria-pressed', 'true');
+      const key = btn.dataset.key;
+      serviceKeyEl.value = key;
+      totalVal.textContent = PRICE_LABELS[key] || '—';
+    });
 
-  <button type="submit" id="payBtn">Plătește</button>
-  <p id="msg" class="muted"></p>
-</form>
+    // --- Semnătură pe canvas (simplu, fără librărie externă) ---
+    const canvas = document.getElementById('sigpad');
+    const ctx = canvas.getContext('2d');
+    let drawing = false;
+    let strokes = []; // pentru undo
+    let currentStroke = [];
+
+    function getPos(evt) {
+      const rect = canvas.getBoundingClientRect();
+      const t = evt.touches ? evt.touches[0] : evt;
+      return { x: (t.clientX - rect.left) * (canvas.width / rect.width),
+               y: (t.clientY - rect.top)  * (canvas.height / rect.height) };
+    }
+
+    function redraw() {
+      ctx.clearRect(0,0,canvas.width,canvas.height);
+      ctx.lineWidth = 2;
+      ctx.lineJoin = 'round';
+      ctx.lineCap  = 'round';
+      ctx.strokeStyle = '#111';
+      strokes.forEach(st => {
+        ctx.beginPath();
+        st.forEach((p,i) => {
+          if (i===0) ctx.moveTo(p.x,p.y); else ctx.lineTo(p.x,p.y);
+        });
+        ctx.stroke();
+      });
+    }
+
+    function startDraw(evt) {
+      drawing = true;
+      currentStroke = [];
+      const p = getPos(evt);
+      currentStroke.push(p);
+      evt.preventDefault();
+    }
+    function moveDraw(evt) {
+      if (!drawing) return;
+      const p = getPos(evt);
+      currentStroke.push(p);
+      redraw();
+      // trasează curentul
+      ctx.beginPath();
+      currentStroke.forEach((p,i)=>{ if(i===0) ctx.moveTo(p.x,p.y); else ctx.lineTo(p.x,p.y); });
+      ctx.stroke();
+      evt.preventDefault();
+    }
+    function endDraw(evt) {
+      if (!drawing) return;
+      drawing = false;
+      if (currentStroke.length > 1) {
+        strokes.push(currentStroke);
+        redraw();
+      }
+      evt && evt.preventDefault();
+    }
+
+    canvas.addEventListener('mousedown', startDraw);
+    canvas.addEventListener('mousemove', moveDraw);
+    window.addEventListener('mouseup', endDraw);
+    canvas.addEventListener('touchstart', startDraw, {passive:false});
+    canvas.addEventListener('touchmove',  moveDraw,  {passive:false});
+    canvas.addEventListener('touchend',   endDraw);
+
+    document.getElementById('sigClear').addEventListener('click', () => {
+      strokes = [];
+      redraw();
+    });
+    document.getElementById('sigUndo').addEventListener('click', () => {
+      strokes.pop();
+      redraw();
+    });
+
+    function canvasToDataURL() {
+      // dacă nu s-a desenat nimic, întoarce string gol (backend tratează ok)
+      if (!strokes.length) return '';
+      return canvas.toDataURL('image/png');
+    }
+
+    // --- Submit către /create-checkout (Stripe Checkout) ---
+    const form = document.getElementById('orderForm');
+    const msg = document.getElementById('msg');
+    const sigHidden = document.getElementById('signature_data');
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      msg.textContent = '';
+
+      // pune semnătura în hidden
+      sigHidden.value = canvasToDataURL();
+
+      const fd = new FormData(form);
+      try {
+        const resp = await fetch('/create-checkout', { method: 'POST', body: fd });
+        const data = await resp.json();
+        if (!resp.ok || !data.checkout_url) {
+          throw new Error(data.error || 'Eroare la inițierea plății.');
+        }
+        // redirect la Stripe Checkout
+        window.location.href = data.checkout_url;
+      } catch (err) {
+        msg.textContent = err.message || 'A apărut o eroare. Reîncearcă.';
+      }
+    });
+  </script>
+</body>
+</html>
