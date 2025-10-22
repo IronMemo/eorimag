@@ -3,7 +3,8 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>EORIMAG – Rapid, simplu, 100% online</title>
+  <title>EORIMAG – Simplu, 100% online</title>
+  <link rel="icon" type="image/png" href="{{ url_for('static', filename='logo-eorimag.png') }}">
   <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
@@ -11,7 +12,8 @@
   <div class="layout-two-col">
     <!-- Coloana stângă (informativă) -->
     <aside class="left-info">
-      <img src="{{ url_for('static', filename='logo-eorieu.png') }}" alt="eorieu.ro" class="logo-img" />
+      <!-- ✅ denumirea corectă a fișierului -->
+      <img src="{{ url_for('static', filename='logo-eorimag.png') }}" alt="EORIMAG" class="logo-img" />
       <h1>Simplu <br>100% online</h1>
       <p class="tagline">
         Completezi formularul, atașezi actele și semnezi — noi depunem solicitarea la autoritatea vamală. Primești confirmarea pe email.
@@ -21,7 +23,7 @@
         <li>Semnătură digitală în pagină</li>
         <li>Plată securizată prin Stripe</li>
         <li>Suport prin email</li>
-        <li><li>Procesarea este realizata de autoritatea vamala,timpii pot varia</li></li>
+        <li>Procesarea este realizată de autoritatea vamală, timpii pot varia</li>
       </ul>
     </aside>
 
