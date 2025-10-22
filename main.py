@@ -26,11 +26,13 @@ stripe.api_key = os.getenv("STRIPE_SECRET_KEY", "")
 STRIPE_WEBHOOK_SECRET = os.getenv("STRIPE_WEBHOOK_SECRET", "")
 
 PRICE_MAP = {
-    "eori_ro": os.getenv("STRIPE_PRICE_EORI_RO", ""),
-    "eori_update": os.getenv("STRIPE_PRICE_EORI_UPDATE", ""),
-    "gb_eori": os.getenv("STRIPE_PRICE_GB_EORI", ""),
-    "resend": os.getenv("STRIPE_PRICE_RESEND", ""),
+    # eori_ro  -> PF (75 RON)
+    "eori_ro": os.getenv("STRIPE_PRICE_EORI_PF", ""),
+
+    # eori_update -> PJ (99 RON)
+    "eori_update": os.getenv("STRIPE_PRICE_EORI_PJ", ""),
 }
+
 
 # ---------- App ----------
 app = Flask(__name__)
