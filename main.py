@@ -18,7 +18,8 @@ ALLOWED_EXTENSIONS = {"pdf", "jpg", "jpeg", "png"}
 DATA_DIR = Path(os.getenv("DATA_DIR", "data"))
 UPLOAD_DIR = Path(os.getenv("UPLOAD_DIR", "uploads"))
 PUBLIC_URL = os.getenv("PUBLIC_URL", "")
-SEND_EMAIL = os.getenv("SEND_EMAIL", "0") == "1"
+SEND_EMAIL = os.getenv("SEND_EMAIL", "0") == "1"                     # email DUPĂ plată (webhook)
+SEND_EMAIL_ON_SUBMIT = os.getenv("SEND_EMAIL_ON_SUBMIT", "1") == "1" # email IMEDIAT, înainte de plată
 
 # Stripe
 import stripe
@@ -33,11 +34,20 @@ PRICE_MAP = {
     "eori_update": os.getenv("STRIPE_PRICE_EORI_UPDATE", ""),
 }
 
-
-
 # ---------- App ----------
 app = Flask(__name__)
 app.secret_key = os.getenv("SECRET_KEY", "dev-secret")
+
+# Limita totală de upload (request body) și erori JSON-friendly
+app.config['MAX_CONTENT_LENGTH'] = 20 * 1024 * 1024  # 20 MB total (ajustează după nevoie)
+
+@ app.errorhandler(413)
+def too_large(_e):
+    return jsonify({"error": "Fișierele sunt prea mari. Max ~20MB per solicitare."}), 413
+
+@ app.errorhandler(500)
+def internal_err(_e):
+    return jsonify({"error": "Eroare de server. Reîncearcă."}), 500
 
 # Ensure dirs
 DATA_DIR.mkdir(parents=True, exist_ok=True)
@@ -46,28 +56,26 @@ UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
 def allowed_file(filename: str) -> bool:
     return "." in filename and filename.rsplit(".", 1)[1].lower() in ALLOWED_EXTENSIONS
 
-@app.get("/")
+@ app.get("/")
 def index():
-    # Keep the eorieu look (templates/index.html) but we render with 4 options
+    # (ai UI cu 2 opțiuni – lăsăm options aici dacă le folosești în template)
     options = [
-        ("eori_ro", "EORI România (PF/PJ)"),
-        ("eori_update", "Actualizare EORI existent"),
-        ("gb_eori", "GB EORI (Marea Britanie)"),
-        ("resend", "Retrimitere documente EORI"),
+        ("eori_ro", "EORI România (PF)"),
+        ("eori_update", "EORI România (PJ)"),
     ]
     return render_template("index.html", options=options)
 
-@app.post("/create-checkout")
+@ app.post("/create-checkout")
 def create_checkout():
     # Collect form fields
     form = request.form
     service_key = form.get("service_key", "eori_ro")
-    full_name   = form.get("full_name", "")
-    company     = form.get("company", "")  # opțional
-    email       = form.get("email", "")
-    phone       = form.get("phone", "")
-    cnp_cui     = form.get("cnp_cui", "")
-    notes       = form.get("notes", "")
+    full_name   = form.get("full_name", "").strip()
+    company     = form.get("company", "").strip()
+    email       = form.get("email", "").strip()
+    phone       = form.get("phone", "").strip()
+    cnp_cui     = form.get("cnp_cui", "").strip()
+    notes       = form.get("notes", "").strip()
 
     if service_key not in PRICE_MAP or not PRICE_MAP[service_key]:
         return jsonify({"error": "Serviciu indisponibil"}), 400
@@ -96,7 +104,7 @@ def create_checkout():
         except Exception as e:
             print("[warn] failed to save signature:", e)
 
-    # Persist a CSV/TSV log
+    # Persist a CSV/TSV log local (backup)
     try:
         logline = (
             f"{datetime.utcnow().isoformat()}\t{service_key}\t{full_name}\t{email}\t"
@@ -107,8 +115,33 @@ def create_checkout():
     except Exception as e:
         print("[warn] Failed to write log:", e)
 
+    # === TRIMITE EMAIL ACUM (înainte de plată) ===
+    if SEND_EMAIL_ON_SUBMIT:
+        try:
+            subj = f"[EORIMAG] Solicitare nouă (NEPLĂTITĂ încă) — {full_name or '-'}"
+            body = (
+                "Solicitare nouă primită de pe site (NEPLĂTITĂ ÎNCĂ)\n\n"
+                f"Serviciu: {service_key}\n"
+                f"Nume: {full_name}\n"
+                f"Companie: {company}\n"
+                f"Email: {email}\n"
+                f"Telefon: {phone}\n"
+                f"CNP/CUI: {cnp_cui}\n"
+                f"Notițe: {notes}\n"
+                f"Fișiere: {', '.join(p.name for p in saved_files) or '-'}\n"
+            )
+            send_email_with_attachments(
+                subject=subj,
+                text=body,
+                attachments=saved_files,
+                reply_to=email or None,  # poți răspunde direct clientului
+            )
+            print("[info] Pre-payment email sent.")
+        except Exception as e:
+            print("[warn] Pre-payment email failed:", e)
+
     # Create Stripe Checkout
-    base_url   = (PUBLIC_URL or request.host_url).rstrip("/")
+    base_url    = (PUBLIC_URL or request.host_url).rstrip("/")
     success_url = f"{base_url}/success?session_id={{CHECKOUT_SESSION_ID}}"
     cancel_url  = f"{base_url}/cancel"
 
@@ -124,6 +157,7 @@ def create_checkout():
     }
 
     try:
+        print("[checkout] service_key =", service_key, "| price =", PRICE_MAP.get(service_key))
         checkout = stripe.checkout.Session.create(
             mode="payment",
             line_items=[{"price": PRICE_MAP[service_key], "quantity": 1}],
@@ -134,17 +168,18 @@ def create_checkout():
         return jsonify({"checkout_url": checkout.url})
     except Exception as e:
         print("[err] Stripe create session:", e)
+        # important: rămânem pe JSON, ca front-end-ul să afișeze frumos
         return jsonify({"error": "Eroare la crearea plății"}), 500
 
-@app.get("/success")
+@ app.get("/success")
 def success():
     return render_template("success.html")
 
-@app.get("/cancel")
+@ app.get("/cancel")
 def cancel():
     return render_template("cancel.html")
 
-@app.post("/webhook")
+@ app.post("/webhook")
 def webhook():
     payload = request.data
     sig_header = request.headers.get("Stripe-Signature", "")
@@ -154,15 +189,18 @@ def webhook():
         print("[err] webhook verify:", e)
         return "", 400
 
+    print("[webhook] event type =", event.get("type"))
+
     if event["type"] == "checkout.session.completed":
         session = event["data"]["object"]
         meta = session.get("metadata", {}) or {}
+        print("[webhook] checkout.session.completed meta:", meta)
 
-        # Attempt email
         if SEND_EMAIL:
             try:
-                subject = f"[EORIMAG] Comandă {meta.get('service_key','')}: {meta.get('full_name','')}"
+                subject = f"[EORIMAG] Comandă PLĂTITĂ — {meta.get('full_name','-')}"
                 body = (
+                    f"Plată confirmată prin Stripe Checkout.\n\n"
                     f"Serviciu: {meta.get('service_key','')}\n"
                     f"Nume: {meta.get('full_name','')}\n"
                     f"Companie: {meta.get('company','')}\n"
@@ -172,7 +210,6 @@ def webhook():
                     f"Notițe: {meta.get('notes','')}\n"
                 )
 
-                # Construim lista de atașamente din fișierele salvate pe disc
                 attachments = []
                 uploads = (meta.get("uploads") or "").split(",") if meta.get("uploads") else []
                 for name in uploads:
@@ -180,19 +217,19 @@ def webhook():
                     if p.exists():
                         attachments.append(p)
 
-                # >>> AICI: apelul cu Reply-To către emailul clientului <<<
                 send_email_with_attachments(
-                    subject,
-                    body,
-                    attachments,                      # listă de Path-uri e OK
-                    reply_to=meta.get("email", None)  # ca să poți răspunde direct clientului
+                    subject=subject,
+                    text=body,
+                    attachments=attachments,
+                    reply_to=meta.get("email", None),
                 )
+                print("[info] Post-payment email sent.")
             except Exception as e:
                 print("[warn] email send failed:", e)
 
     return "", 200
 
-@app.get("/healthz")
+@ app.get("/healthz")
 def healthz():
     return "ok", 200
 
