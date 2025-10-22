@@ -12,14 +12,13 @@
   <div class="layout-two-col">
     <!-- Coloana stângă (informativă) -->
     <aside class="left-info">
-      <!-- ✅ denumirea corectă a fișierului -->
       <img src="{{ url_for('static', filename='logo-eorimag.png') }}" alt="EORIMAG" class="logo-img" />
       <h1>Simplu <br>100% online</h1>
       <p class="tagline">
         Completezi formularul, atașezi actele și semnezi — noi depunem solicitarea la autoritatea vamală. Primești confirmarea pe email.
       </p>
       <ul>
-        <li>Termen eliberare 1-3 zile</li>
+        <li>Termen eliberare 1–3 zile</li>
         <li>Semnătură digitală în pagină</li>
         <li>Plată securizată prin Stripe</li>
         <li>Suport prin email</li>
@@ -35,37 +34,33 @@
           <input type="hidden" name="service_key" id="service_key" value="eori_ro">
 
           <button type="button" class="service-card selected" data-key="eori_ro" aria-pressed="true">
-            <span class="title">Obținere cod EORI : Persoana Fizica</span>
-            
+            <span class="title">Obținere cod EORI: Persoană Fizică</span>
             <span class="price">75 RON</span>
           </button>
 
           <button type="button" class="service-card" data-key="eori_update" aria-pressed="false">
-            <span class="title">Obținere cod EORI : Persoana Juridica</span>
-            
+            <span class="title">Obținere cod EORI: Persoană Juridică</span>
             <span class="price">99 RON</span>
           </button>
-
-          
         </div>
 
         <!-- Date solicitant -->
         <div class="grid form-grid">
-          <label>Nume și prenume* 
+          <label>Nume și prenume*
             <input name="full_name" placeholder="Ex. Popescu Andrei" required>
           </label>
-          <label>Companie (opțional) 
+          <label>Companie (opțional)
             <input name="company" placeholder="Ex. SC Exemplu SRL">
           </label>
-          <label>Email* 
+          <label>Email*
             <input type="email" name="email" placeholder="adresa@exemplu.ro" required>
           </label>
-          <label>Telefon* 
+          <label>Telefon*
             <input type="tel" name="phone" placeholder="07xx xxx xxx" required>
           </label>
         </div>
 
-        <label>CNP/CUI* 
+        <label>CNP/CUI*
           <input name="cnp_cui" required>
         </label>
 
@@ -76,7 +71,8 @@
             <span class="muted">Semnează cu mouse-ul sau degetul (pe telefon)</span>
           </div>
           <div class="sig-wrap">
-            <canvas id="sigpad" width="600" height="200"></canvas>
+            <!-- Dimensiunea finală este controlată de CSS; JS face scale pentru HiDPI -->
+            <canvas id="sigpad"></canvas>
           </div>
           <div class="sig-actions">
             <button type="button" id="sigClear" class="secondary">Șterge semnătura</button>
@@ -109,7 +105,7 @@
         <!-- Total + Submit -->
         <div style="display:flex; gap:10px; align-items:center; margin-top:12px;">
           <div id="totalBox" class="secondary" style="padding:10px 12px; border-radius:8px; border:1px solid #ddd;">
-            <strong>Total estimat:</strong> <span id="totalVal">79 RON</span>
+            <strong>Total estimat:</strong> <span id="totalVal">—</span>
           </div>
           <button type="submit" id="payBtn">Trimite solicitarea</button>
         </div>
@@ -120,29 +116,44 @@
 
   <script>
     // --- Selectarea serviciului + total ---
-    const serviceGrid = document.getElementById('serviceGrid');
+    const serviceGrid  = document.getElementById('serviceGrid');
     const serviceKeyEl = document.getElementById('service_key');
-    const totalVal = document.getElementById('totalVal');
+    const totalVal     = document.getElementById('totalVal');
 
+    // Prețuri afișate
     const PRICE_LABELS = {
-      eori_ro: '79 RON',
-      eori_update: '79 RON',
-      gb_eori: '149 RON',
-      resend: '49 RON'
+      eori_ro:     '75 RON',   // Persoană Fizică
+      eori_update: '99 RON',   // Persoană Juridică
+      gb_eori:     '149 RON',
+      resend:      '49 RON'
     };
 
+    function updateTotalFromKey(key){
+      totalVal.textContent = PRICE_LABELS[key] || '—';
+      // mic efect vizual (opțional)
+      totalVal.style.opacity = '0.3';
+      requestAnimationFrame(() => { totalVal.style.opacity = '1'; });
+    }
+
+    // Setează totalul corect la încărcare
+    updateTotalFromKey(serviceKeyEl.value || 'eori_ro');
+
+    // Click pe card -> selectare + actualizare total
     serviceGrid.addEventListener('click', (e) => {
       const btn = e.target.closest('.service-card');
       if (!btn) return;
+
       document.querySelectorAll('.service-card').forEach(b => {
         b.classList.remove('selected');
         b.setAttribute('aria-pressed', 'false');
       });
+
       btn.classList.add('selected');
       btn.setAttribute('aria-pressed', 'true');
-      const key = btn.dataset.key;
+
+      const key = btn.dataset.key;  // eori_ro / eori_update ...
       serviceKeyEl.value = key;
-      totalVal.textContent = PRICE_LABELS[key] || '—';
+      updateTotalFromKey(key);
     });
 
     // --- Semnătură pe canvas (simplu, fără librărie externă) ---
@@ -152,16 +163,38 @@
     let strokes = []; // pentru undo
     let currentStroke = [];
 
+    // Scale pentru HiDPI / Retina (claritate)
+    function resizeSigCanvas(){
+      const dpr  = window.devicePixelRatio || 1;
+      const rect = canvas.getBoundingClientRect();
+      // setăm dimensiunea vizibilă (CSS) dacă nu are una
+      if (!canvas.style.width) canvas.style.width = '100%';
+      if (!canvas.style.height) canvas.style.height = '200px';
+
+      // sincronizare cu stilul vizibil
+      const cssWidth  = rect.width  || canvas.clientWidth  || 600;
+      const cssHeight = rect.height || canvas.clientHeight || 200;
+
+      canvas.width  = Math.max(1, Math.round(cssWidth  * dpr));
+      canvas.height = Math.max(1, Math.round(cssHeight * dpr));
+
+      ctx.setTransform(1, 0, 0, 1, 0, 0); // reset transform
+      ctx.scale(dpr, dpr);
+      redraw();
+    }
+
     function getPos(evt) {
       const rect = canvas.getBoundingClientRect();
       const t = evt.touches ? evt.touches[0] : evt;
-      return { x: (t.clientX - rect.left) * (canvas.width / rect.width),
-               y: (t.clientY - rect.top)  * (canvas.height / rect.height) };
+      return {
+        x: (t.clientX - rect.left),
+        y: (t.clientY - rect.top)
+      };
     }
 
     function redraw() {
       ctx.clearRect(0,0,canvas.width,canvas.height);
-      ctx.lineWidth = 2;
+      ctx.lineWidth = 2 * (window.devicePixelRatio || 1);
       ctx.lineJoin = 'round';
       ctx.lineCap  = 'round';
       ctx.strokeStyle = '#111';
@@ -186,7 +219,8 @@
       const p = getPos(evt);
       currentStroke.push(p);
       redraw();
-      // trasează curentul
+      // trasează curentul live
+      ctx.lineWidth = 2 * (window.devicePixelRatio || 1);
       ctx.beginPath();
       currentStroke.forEach((p,i)=>{ if(i===0) ctx.moveTo(p.x,p.y); else ctx.lineTo(p.x,p.y); });
       ctx.stroke();
@@ -219,10 +253,14 @@
     });
 
     function canvasToDataURL() {
-      // dacă nu s-a desenat nimic, întoarce string gol (backend tratează ok)
       if (!strokes.length) return '';
+      // export în rezoluție nativă
       return canvas.toDataURL('image/png');
     }
+
+    // Initializează canvas-ul pentru DPI curent și pe resize
+    resizeSigCanvas();
+    window.addEventListener('resize', resizeSigCanvas);
 
     // --- Submit către /create-checkout (Stripe Checkout) ---
     const form = document.getElementById('orderForm');
