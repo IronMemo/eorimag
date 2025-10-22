@@ -3,7 +3,7 @@ import uuid
 import base64
 from datetime import datetime
 from pathlib import Path
-from flask import Flask, render_template, request, redirect, url_for, jsonify, abort
+from flask import Flask, render_template, request, jsonify
 from werkzeug.utils import secure_filename
 
 # Optional local email util
@@ -59,11 +59,12 @@ def create_checkout():
     # Collect form fields
     form = request.form
     service_key = form.get("service_key", "eori_ro")
-    full_name = form.get("full_name", "")
-    email = form.get("email", "")
-    phone = form.get("phone", "")
-    cnp_cui = form.get("cnp_cui", "")
-    notes = form.get("notes", "")
+    full_name   = form.get("full_name", "")
+    company     = form.get("company", "")  # opțional
+    email       = form.get("email", "")
+    phone       = form.get("phone", "")
+    cnp_cui     = form.get("cnp_cui", "")
+    notes       = form.get("notes", "")
 
     if service_key not in PRICE_MAP or not PRICE_MAP[service_key]:
         return jsonify({"error": "Serviciu indisponibil"}), 400
@@ -94,18 +95,24 @@ def create_checkout():
 
     # Persist a CSV/TSV log
     try:
-        logline = f"{datetime.utcnow().isoformat()}\t{service_key}\t{full_name}\t{email}\t{phone}\t{cnp_cui}\t{notes}\t{';'.join(p.name for p in saved_files)}\n"
+        logline = (
+            f"{datetime.utcnow().isoformat()}\t{service_key}\t{full_name}\t{email}\t"
+            f"{phone}\t{cnp_cui}\t{notes}\t{company}\t"
+            f"{';'.join(p.name for p in saved_files)}\n"
+        )
         (DATA_DIR / "orders.tsv").open("a", encoding="utf-8").write(logline)
     except Exception as e:
         print("[warn] Failed to write log:", e)
 
     # Create Stripe Checkout
-    success_url = (PUBLIC_URL or request.host_url).rstrip("/") + "/success?session_id={CHECKOUT_SESSION_ID}"
-    cancel_url  = (PUBLIC_URL or request.host_url).rstrip("/") + "/cancel"
+    base_url   = (PUBLIC_URL or request.host_url).rstrip("/")
+    success_url = f"{base_url}/success?session_id={{CHECKOUT_SESSION_ID}}"
+    cancel_url  = f"{base_url}/cancel"
 
     metadata = {
         "service_key": service_key,
         "full_name": full_name,
+        "company": company,
         "email": email,
         "phone": phone,
         "cnp_cui": cnp_cui,
@@ -147,27 +154,39 @@ def webhook():
     if event["type"] == "checkout.session.completed":
         session = event["data"]["object"]
         meta = session.get("metadata", {}) or {}
+
         # Attempt email
         if SEND_EMAIL:
             try:
-                subject = f"[EORIEU] Comandă {meta.get('service_key','')}: {meta.get('full_name','')}"
+                subject = f"[EORIMAG] Comandă {meta.get('service_key','')}: {meta.get('full_name','')}"
                 body = (
-                    f"Serviciu: {meta.get('service_key')}\n"
-                    f"Nume: {meta.get('full_name')}\n"
-                    f"Email: {meta.get('email')}\n"
-                    f"Telefon: {meta.get('phone')}\n"
-                    f"CNP/CUI: {meta.get('cnp_cui')}\n"
-                    f"Notițe: {meta.get('notes')}\n"
+                    f"Serviciu: {meta.get('service_key','')}\n"
+                    f"Nume: {meta.get('full_name','')}\n"
+                    f"Companie: {meta.get('company','')}\n"
+                    f"Email: {meta.get('email','')}\n"
+                    f"Telefon: {meta.get('phone','')}\n"
+                    f"CNP/CUI: {meta.get('cnp_cui','')}\n"
+                    f"Notițe: {meta.get('notes','')}\n"
                 )
+
+                # Construim lista de atașamente din fișierele salvate pe disc
                 attachments = []
                 uploads = (meta.get("uploads") or "").split(",") if meta.get("uploads") else []
                 for name in uploads:
                     p = UPLOAD_DIR / name
                     if p.exists():
                         attachments.append(p)
-                send_email_with_attachments(subject, body, attachments)
+
+                # >>> AICI: apelul cu Reply-To către emailul clientului <<<
+                send_email_with_attachments(
+                    subject,
+                    body,
+                    attachments,                      # listă de Path-uri e OK
+                    reply_to=meta.get("email", None)  # ca să poți răspunde direct clientului
+                )
             except Exception as e:
                 print("[warn] email send failed:", e)
+
     return "", 200
 
 @app.get("/healthz")
@@ -175,4 +194,4 @@ def healthz():
     return "ok", 200
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=int(os.getenv("PORT","5000")), debug=False)
+    app.run(host="0.0.0.0", port=int(os.getenv("PORT", "5000")), debug=False)
