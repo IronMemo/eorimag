@@ -27,11 +27,12 @@ STRIPE_WEBHOOK_SECRET = os.getenv("STRIPE_WEBHOOK_SECRET", "")
 
 PRICE_MAP = {
     # eori_ro  -> PF (75 RON)
-    "eori_ro": os.getenv("STRIPE_PRICE_EORI_PF", ""),
+    "eori_ro": os.getenv("STRIPE_PRICE_EORI_RO", ""),
 
     # eori_update -> PJ (99 RON)
-    "eori_update": os.getenv("STRIPE_PRICE_EORI_PJ", ""),
+    "eori_update": os.getenv("STRIPE_PRICE_EORI_UPDATE", ""),
 }
+
 
 
 # ---------- App ----------
