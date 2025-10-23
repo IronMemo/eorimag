@@ -115,7 +115,7 @@ def create_checkout():
     except Exception as e:
         print("[warn] Failed to write log:", e)
 
-    # === TRIMITE EMAIL ACUM (înainte de plată) ===
+        # === TRIMITE EMAIL ACUM (înainte de plată) ===
     if SEND_EMAIL_ON_SUBMIT:
         try:
             subj = f"[EORIMAG] Solicitare nouă (NEPLĂTITĂ încă) — {full_name or '-'}"
@@ -134,51 +134,47 @@ def create_checkout():
                 subject=subj,
                 text=body,
                 attachments=saved_files,
-                reply_to=email or None,  # poți răspunde direct clientului
+                reply_to=email or None,
             )
             print("[info] Pre-payment email sent.")
         except Exception as e:
             print("[warn] Pre-payment email failed:", e)
 
-    # Create Stripe Checkout
-base_url    = (PUBLIC_URL or request.host_url).rstrip("/")
-success_url = f"{base_url}/success?session_id={{CHECKOUT_SESSION_ID}}"
-cancel_url  = f"{base_url}/cancel"
+    # Create Stripe Checkout  ⬇️  (TOT ce urmează rămâne INDENTAT în funcție)
+    base_url    = (PUBLIC_URL or request.host_url).rstrip("/")
+    success_url = f"{base_url}/success?session_id={{CHECKOUT_SESSION_ID}}"
+    cancel_url  = f"{base_url}/cancel"
 
-metadata = {
-    "service_key": service_key,
-    "full_name": full_name,
-    "company": company,
-    "email": email,
-    "phone": phone,
-    "cnp_cui": cnp_cui,
-    "notes": notes,
-    "uploads": ",".join(p.name for p in saved_files),
-}
+    metadata = {
+        "service_key": service_key,
+        "full_name": full_name,
+        "company": company,
+        "email": email,
+        "phone": phone,
+        "cnp_cui": cnp_cui,
+        "notes": notes,
+        "uploads": ",".join(p.name for p in saved_files),
+    }
 
-try:
-    checkout = stripe.checkout.Session.create(
-        mode="payment",
-        line_items=[{"price": PRICE_MAP[service_key], "quantity": 1}],
-        success_url=success_url,
-        cancel_url=cancel_url,
-        metadata=metadata,
-        payment_intent_data={
-            # apare în detaliile Stripe și uneori în extrasul clientului
-            "description": f"EORIMAG – {full_name} ({service_key})",
-            # max. 22 caractere, doar litere mari/cifre/spații
-            "statement_descriptor_suffix": "EORIMAG"
-        },
-        # opțional: afișează numele companiei în pagina de plată
-        custom_text={
-            "submit": {"message": "Plata va fi procesată de EORIMAG"}
-        }
-    )
-    print(f"[checkout] service_key = {service_key} | price = {PRICE_MAP[service_key]}")
-    return jsonify({"checkout_url": checkout.url})
-except Exception as e:
-    print("[err] Stripe create session:", e)
-    return jsonify({"error": "Eroare la crearea plății"}), 500
+    try:
+        checkout = stripe.checkout.Session.create(
+            mode="payment",
+            line_items=[{"price": PRICE_MAP[service_key], "quantity": 1}],
+            success_url=success_url,
+            cancel_url=cancel_url,
+            metadata=metadata,
+            payment_intent_data={
+                "description": f"EORIMAG – {full_name} ({service_key})",
+                "statement_descriptor_suffix": "EORIMAG",
+            },
+            custom_text={"submit": {"message": "Plata va fi procesată de EORIMAG"}},
+        )
+        print(f"[checkout] service_key = {service_key} | price = {PRICE_MAP[service_key]}")
+        return jsonify({"checkout_url": checkout.url})
+    except Exception as e:
+        print("[err] Stripe create session:", e)
+        return jsonify({"error": "Eroare la crearea plății"}), 500
+
 
 
 @ app.get("/success")
