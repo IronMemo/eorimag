@@ -54,6 +54,12 @@ def termeni():
     return render_template("termeni.html")
 
 
+@app.route("/confidentialitate")
+def confidentialitate():
+    return render_template("confidentialitate.html")
+
+
+
 # Ensure dirs
 DATA_DIR.mkdir(parents=True, exist_ok=True)
 UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
