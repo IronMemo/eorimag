@@ -84,8 +84,8 @@
         <!-- Upload documente -->
         <div class="uploads" style="margin-top:12px">
           <div>
-            <span>Carte de identitate – față (JPG/PNG/PDF)</span>
-            <input type="file" name="id_front" accept=".pdf,.jpg,.jpeg,.png">
+            <span>Carte de identitate – față (JPG/PNG/PDF) *</span>
+            <input type="file" name="id_front" accept=".pdf,.jpg,.jpeg,.png" required>
           </div>
           <div>
             <span>Carte de identitate – verso (opțional)</span>
@@ -102,17 +102,43 @@
           <input name="notes" placeholder="Detalii utile pentru solicitare">
         </label>
 
-        <!-- Total + Submit -->
-        <div style="display:flex; gap:10px; align-items:center; margin-top:12px;">
-          <div id="totalBox" class="secondary" style="padding:10px 12px; border-radius:8px; border:1px solid #ddd;">
-            <strong>Total estimat:</strong> <span id="totalVal">—</span>
+        <!-- Total + Termeni + Submit -->
+        <div style="display:flex; flex-direction:column; gap:12px; margin-top:12px;">
+
+          <!-- total -->
+          <div style="display:flex; flex-wrap:wrap; gap:10px; align-items:center;">
+            <div id="totalBox" class="secondary" style="padding:10px 12px; border-radius:8px; border:1px solid #ddd;">
+              <strong>Total estimat:</strong> <span id="totalVal">—</span>
+            </div>
           </div>
-          <button type="submit" id="payBtn">Trimite solicitarea</button>
+
+          <!-- checkbox termeni -->
+          <div class="terms-box" style="font-size:0.9rem; line-height:1.4; color:#333; display:flex; align-items:flex-start; gap:8px;">
+            <input
+              type="checkbox"
+              id="accept_terms"
+              name="accept_terms"
+              required
+              style="margin-top:3px; accent-color:#007bff; flex-shrink:0;"
+            >
+            <label for="accept_terms" style="cursor:pointer;">
+              Confirm că am citit și sunt de acord cu
+              <a href="/termeni" target="_blank" style="color:#007bff; text-decoration:none;">Termenii și Condițiile</a>,
+              și sunt de acord ca datele mele personale și documentele încărcate să fie folosite pentru depunerea solicitării mele de cod EORI la autoritatea vamală.
+            </label>
+          </div>
+
+          <!-- buton trimite -->
+          <div>
+            <button type="submit" id="payBtn">Trimite solicitarea</button>
+          </div>
         </div>
+
         <p id="msg" class="muted"></p>
       </form>
     </main>
   </div>
+
 
   <script>
     // --- Selectarea serviciului + total ---
@@ -130,7 +156,7 @@
 
     function updateTotalFromKey(key){
       totalVal.textContent = PRICE_LABELS[key] || '—';
-      // mic efect vizual (opțional)
+      // mic efect vizual
       totalVal.style.opacity = '0.3';
       requestAnimationFrame(() => { totalVal.style.opacity = '1'; });
     }
@@ -156,7 +182,7 @@
       updateTotalFromKey(key);
     });
 
-    // --- Semnătură pe canvas (simplu, fără librărie externă) ---
+    // --- Semnătură pe canvas (fără librărie externă) ---
     const canvas = document.getElementById('sigpad');
     const ctx = canvas.getContext('2d');
     let drawing = false;
