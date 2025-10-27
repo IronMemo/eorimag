@@ -1,254 +1,352 @@
-import os
-import uuid
-import base64
-from datetime import datetime
-from pathlib import Path
-from flask import Flask, render_template, request, jsonify
-from werkzeug.utils import secure_filename
+<!doctype html>
+<html lang="ro">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>EORIMAG – Simplu, 100% online</title>
+  <link rel="icon" type="image/png" href="{{ url_for('static', filename='logo-eorimag.png') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <style>
+    /* ====== Meniu sus ====== */
+    header.navbar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      background: #fff;
+      border-bottom: 1px solid #ddd;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 20px;
+      z-index: 1000;
+    }
+    .navbar .logo {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-weight: bold;
+      color: #111;
+      text-decoration: none;
+      font-size: 1.1rem;
+    }
+    .navbar .logo img {
+      height: 32px;
+      width: auto;
+    }
+    nav.menu {
+      display: flex;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+    nav.menu a {
+      text-decoration: none;
+      color: #333;
+      font-size: 0.95rem;
+      font-weight: 500;
+      transition: color 0.2s;
+    }
+    nav.menu a:hover {
+      color: #007bff;
+    }
+    /* Ajustăm layoutul să țină cont de bara fixă */
+    body {
+      margin: 0;
+      padding-top: 70px;
+      font-family: system-ui, sans-serif;
+    }
+  </style>
+</head>
+<body>
 
-# Optional local email util
-try:
-    from utils.emailer import send_email_with_attachments
-except Exception:
-    def send_email_with_attachments(*args, **kwargs):
-        print("[warn] utils.emailer not available; skipping email send.")
+  <!-- ====== Meniu de navigare sus ====== -->
+  <header class="navbar">
+    <a href="/" class="logo">
+      <img src="{{ url_for('static', filename='logo-eorimag.png') }}" alt="EORIMAG">
+      EORIMAG
+    </a>
+    <nav class="menu">
+      <a href="#ce-este">Ce este codul EORI?</a>
+      <a href="#procedura">Procedura EORI</a>
+      <a href="#documente">Documente necesare</a>
+      <a href="#faq">Întrebări frecvente</a>
+      <a href="#contact">Contact</a>
+    </nav>
+  </header>
 
-# ---------- Config ----------
-ALLOWED_EXTENSIONS = {"pdf", "jpg", "jpeg", "png"}
-DATA_DIR = Path(os.getenv("DATA_DIR", "data"))
-UPLOAD_DIR = Path(os.getenv("UPLOAD_DIR", "uploads"))
-PUBLIC_URL = os.getenv("PUBLIC_URL", "")
-SEND_EMAIL = os.getenv("SEND_EMAIL", "0") == "1"                     # email DUPĂ plată (webhook)
-SEND_EMAIL_ON_SUBMIT = os.getenv("SEND_EMAIL_ON_SUBMIT", "1") == "1" # email IMEDIAT, înainte de plată
+  <div class="layout-two-col">
+    <!-- Coloana stângă (informativă) -->
+    <aside class="left-info">
+      <img src="{{ url_for('static', filename='logo-eorimag.png') }}" alt="EORIMAG" class="logo-img" />
+      <h1>Simplu <br>100% online</h1>
+      <p class="tagline">
+        Completezi formularul, atașezi actele și semnezi — noi depunem solicitarea la autoritatea vamală. Primești confirmarea pe email.
+      </p>
+      <ul>
+        <li>Termen eliberare 1–3 zile</li>
+        <li>Semnătură digitală în pagină</li>
+        <li>Plată securizată prin Stripe</li>
+        <li>Suport prin email</li>
+        <li>Procesarea este realizată de autoritatea vamală, timpii pot varia</li>
+      </ul>
+    </aside>
 
-# Stripe
-import stripe
-stripe.api_key = os.getenv("STRIPE_SECRET_KEY", "")
-STRIPE_WEBHOOK_SECRET = os.getenv("STRIPE_WEBHOOK_SECRET", "")
+    <!-- Coloana dreaptă (formular) -->
+    <main class="right-form">
+      <form id="orderForm" enctype="multipart/form-data" novalidate>
+        <!-- Servicii -->
+        <div class="service-grid" id="serviceGrid" role="radiogroup" aria-label="Alege serviciul">
+          <input type="hidden" name="service_key" id="service_key" value="eori_ro">
 
-PRICE_MAP = {
-    # eori_ro  -> PF (75 RON)
-    "eori_ro": os.getenv("STRIPE_PRICE_EORI_RO", ""),
+          <button type="button" class="service-card selected" data-key="eori_ro" aria-pressed="true">
+            <span class="title">Obținere cod EORI: Persoană Fizică</span>
+            <span class="price">75 RON</span>
+          </button>
 
-    # eori_update -> PJ (99 RON)
-    "eori_update": os.getenv("STRIPE_PRICE_EORI_UPDATE", ""),
-}
+          <button type="button" class="service-card" data-key="eori_update" aria-pressed="false">
+            <span class="title">Obținere cod EORI: Persoană Juridică</span>
+            <span class="price">99 RON</span>
+          </button>
+        </div>
 
-# ---------- App ----------
-app = Flask(__name__)
-app.secret_key = os.getenv("SECRET_KEY", "dev-secret")
+        <!-- Date solicitant -->
+        <div class="grid form-grid">
+          <label>Nume și prenume*
+            <input name="full_name" placeholder="Ex. Popescu Andrei" required>
+          </label>
+          <label>Companie (opțional)
+            <input name="company" placeholder="Ex. SC Exemplu SRL">
+          </label>
+          <label>Email*
+            <input type="email" name="email" placeholder="adresa@exemplu.ro" required>
+          </label>
+          <label>Telefon*
+            <input type="tel" name="phone" placeholder="07xx xxx xxx" required>
+          </label>
+        </div>
 
-# Limita totală de upload (request body) și erori JSON-friendly
-app.config['MAX_CONTENT_LENGTH'] = 20 * 1024 * 1024  # 20 MB total (ajustează după nevoie)
+        <label>CNP/CUI*
+          <input name="cnp_cui" required>
+        </label>
 
-@ app.errorhandler(413)
-def too_large(_e):
-    return jsonify({"error": "Fișierele sunt prea mari. Max ~20MB per solicitare."}), 413
+        <!-- Semnătură -->
+        <div class="signature-block">
+          <div class="sig-header">
+            <strong>Semnătură *</strong>
+            <span class="muted">Semnează cu mouse-ul sau degetul (pe telefon)</span>
+          </div>
+          <div class="sig-wrap">
+            <canvas id="sigpad"></canvas>
+          </div>
+          <div class="sig-actions">
+            <button type="button" id="sigClear" class="secondary">Șterge semnătura</button>
+            <button type="button" id="sigUndo" class="secondary">Undo</button>
+          </div>
+          <input type="hidden" name="signature_data" id="signature_data" required>
+        </div>
 
-@ app.errorhandler(500)
-def internal_err(_e):
-    return jsonify({"error": "Eroare de server. Reîncearcă."}), 500
+        <!-- Upload documente -->
+        <div class="uploads" style="margin-top:12px">
+          <div>
+            <span>Carte de identitate – față (JPG/PNG/PDF) *</span>
+            <input type="file" name="id_front" accept=".pdf,.jpg,.jpeg,.png" required>
+          </div>
+          <div>
+            <span>Carte de identitate – verso (opțional)</span>
+            <input type="file" name="id_back" accept=".pdf,.jpg,.jpeg,.png">
+          </div>
+        </div>
 
-@app.route("/termeni")
-def termeni():
-    return render_template("termeni.html")
+        <!-- Total + Termeni + Submit -->
+        <div style="display:flex; flex-direction:column; gap:12px; margin-top:12px;">
+          <div style="display:flex; flex-wrap:wrap; gap:10px; align-items:center;">
+            <div id="totalBox" class="secondary" style="padding:10px 12px; border-radius:8px; border:1px solid #ddd;">
+              <strong>Total estimat:</strong> <span id="totalVal">—</span>
+            </div>
+          </div>
 
+          <div class="terms-box" style="font-size:0.9rem; line-height:1.4; color:#333; display:flex; align-items:flex-start; gap:8px;">
+            <input
+              type="checkbox"
+              id="accept_terms"
+              name="accept_terms"
+              required
+              style="margin-top:3px; accent-color:#007bff; flex-shrink:0;"
+            >
+            <label for="accept_terms" style="cursor:pointer;">
+              Confirm că am citit și sunt de acord cu
+              <a href="/termeni" target="_blank" style="color:#007bff; text-decoration:none;">Termenii și Condițiile</a>,
+              și sunt de acord ca datele mele personale și documentele încărcate să fie folosite pentru depunerea solicitării mele de cod EORI la autoritatea vamală.
+            </label>
+          </div>
 
-@app.route("/confidentialitate")
-def confidentialitate():
-    return render_template("confidentialitate.html")
+          <div>
+            <button type="submit" id="payBtn">Trimite solicitarea</button>
+          </div>
+        </div>
 
+        <p id="msg" class="muted"></p>
+      </form>
+    </main>
+  </div>
 
+  <!-- ====== Secțiuni pentru ancorele din meniu ====== -->
+  <section id="ce-este" style="padding:40px 20px;">
+    <h2>Ce este codul EORI?</h2>
+    <p>Codul EORI este un identificator unic folosit în relațiile cu autoritățile vamale ale Uniunii Europene pentru persoane fizice și juridice implicate în activități de import, export sau alte operațiuni vamale.</p>
+  </section>
 
-# Ensure dirs
-DATA_DIR.mkdir(parents=True, exist_ok=True)
-UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
+  <section id="procedura" style="padding:40px 20px; background:#f9f9f9;">
+    <h2>Procedura EORI</h2>
+    <p>Completarea formularului online, atașarea documentelor și semnătura electronică sunt suficiente. Noi transmitem cererea la autoritatea vamală, iar confirmarea se primește prin email.</p>
+  </section>
 
-def allowed_file(filename: str) -> bool:
-    return "." in filename and filename.rsplit(".", 1)[1].lower() in ALLOWED_EXTENSIONS
+  <section id="documente" style="padding:40px 20px;">
+    <h2>Documente necesare</h2>
+    <ul>
+      <li>Carte de identitate – față</li>
+      <li>Carte de identitate – verso (opțional)</li>
+      <li>Împuternicire (dacă se aplică, pentru persoane juridice)</li>
+    </ul>
+  </section>
 
-@ app.get("/")
-def index():
-    # (ai UI cu 2 opțiuni – lăsăm options aici dacă le folosești în template)
-    options = [
-        ("eori_ro", "EORI România (PF)"),
-        ("eori_update", "EORI România (PJ)"),
-    ]
-    return render_template("index.html", options=options)
+  <section id="faq" style="padding:40px 20px; background:#f9f9f9;">
+    <h2>Întrebări frecvente</h2>
+    <p><strong>Cât durează obținerea codului EORI?</strong><br>De regulă, 1–3 zile lucrătoare.</p>
+    <p><strong>Primesc codul pe email?</strong><br>Da, confirmarea vine pe email imediat ce este emis codul EORI.</p>
+  </section>
 
-@ app.post("/create-checkout")
-def create_checkout():
-    # Collect form fields
-    form = request.form
-    service_key = form.get("service_key", "eori_ro")
-    full_name   = form.get("full_name", "").strip()
-    company     = form.get("company", "").strip()
-    email       = form.get("email", "").strip()
-    phone       = form.get("phone", "").strip()
-    cnp_cui     = form.get("cnp_cui", "").strip()
-    notes       = form.get("notes", "").strip()
+  <section id="contact" style="padding:40px 20px;">
+    <h2>Contact</h2>
+    <p>Pentru suport sau întrebări, ne poți scrie la <a href="mailto:suport@eorimag.ro">suport@eorimag.ro</a>.</p>
+  </section>
 
-    if service_key not in PRICE_MAP or not PRICE_MAP[service_key]:
-        return jsonify({"error": "Serviciu indisponibil"}), 400
+  <script>
+    // Scriptul original (selectare serviciu, semnătură, submit)
+    const serviceGrid  = document.getElementById('serviceGrid');
+    const serviceKeyEl = document.getElementById('service_key');
+    const totalVal     = document.getElementById('totalVal');
 
-    # Save uploads
-    saved_files = []
-    for field in ("id_front", "id_back", "extra_doc"):
-        file = request.files.get(field)
-        if file and file.filename and allowed_file(file.filename):
-            fname = f"{uuid.uuid4().hex}_{secure_filename(file.filename)}"
-            fpath = UPLOAD_DIR / fname
-            file.save(fpath)
-            saved_files.append(fpath)
+    const PRICE_LABELS = {
+      eori_ro: '75 RON',
+      eori_update: '99 RON',
+      gb_eori: '149 RON',
+      resend: '49 RON'
+    };
 
-    # === Semnătură (base64 PNG din canvas) ===
-    signature_data = form.get("signature_data", "")
-    if signature_data and signature_data.startswith("data:image/png;base64,"):
-        try:
-            b64 = signature_data.split(",", 1)[1]
-            raw = base64.b64decode(b64)
-            sig_name = f"{uuid.uuid4().hex}_signature.png"
-            sig_path = UPLOAD_DIR / sig_name
-            with open(sig_path, "wb") as f:
-                f.write(raw)
-            saved_files.append(sig_path)
-        except Exception as e:
-            print("[warn] failed to save signature:", e)
-
-    # Persist a CSV/TSV log local (backup)
-    try:
-        logline = (
-            f"{datetime.utcnow().isoformat()}\t{service_key}\t{full_name}\t{email}\t"
-            f"{phone}\t{cnp_cui}\t{notes}\t{company}\t"
-            f"{';'.join(p.name for p in saved_files)}\n"
-        )
-        (DATA_DIR / "orders.tsv").open("a", encoding="utf-8").write(logline)
-    except Exception as e:
-        print("[warn] Failed to write log:", e)
-
-        # === TRIMITE EMAIL ACUM (înainte de plată) ===
-    if SEND_EMAIL_ON_SUBMIT:
-        try:
-            subj = f"[EORIMAG] Solicitare nouă (NEPLĂTITĂ încă) — {full_name or '-'}"
-            body = (
-                "Solicitare nouă primită de pe site (NEPLĂTITĂ ÎNCĂ)\n\n"
-                f"Serviciu: {service_key}\n"
-                f"Nume: {full_name}\n"
-                f"Companie: {company}\n"
-                f"Email: {email}\n"
-                f"Telefon: {phone}\n"
-                f"CNP/CUI: {cnp_cui}\n"
-                f"Notițe: {notes}\n"
-                f"Fișiere: {', '.join(p.name for p in saved_files) or '-'}\n"
-            )
-            send_email_with_attachments(
-                subject=subj,
-                text=body,
-                attachments=saved_files,
-                reply_to=email or None,
-            )
-            print("[info] Pre-payment email sent.")
-        except Exception as e:
-            print("[warn] Pre-payment email failed:", e)
-
-    # Create Stripe Checkout  ⬇️  (TOT ce urmează rămâne INDENTAT în funcție)
-    base_url    = (PUBLIC_URL or request.host_url).rstrip("/")
-    success_url = f"{base_url}/success?session_id={{CHECKOUT_SESSION_ID}}"
-    cancel_url  = f"{base_url}/cancel"
-
-    metadata = {
-        "service_key": service_key,
-        "full_name": full_name,
-        "company": company,
-        "email": email,
-        "phone": phone,
-        "cnp_cui": cnp_cui,
-        "notes": notes,
-        "uploads": ",".join(p.name for p in saved_files),
+    function updateTotalFromKey(key){
+      totalVal.textContent = PRICE_LABELS[key] || '—';
+      totalVal.style.opacity = '0.3';
+      requestAnimationFrame(() => { totalVal.style.opacity = '1'; });
     }
 
-    try:
-        checkout = stripe.checkout.Session.create(
-            mode="payment",
-            line_items=[{"price": PRICE_MAP[service_key], "quantity": 1}],
-            success_url=success_url,
-            cancel_url=cancel_url,
-            metadata=metadata,
-            payment_intent_data={
-                "description": f"EORIMAG – {full_name} ({service_key})",
-                "statement_descriptor_suffix": "EORIMAG",
-            },
-            custom_text={"submit": {"message": "Plata va fi procesată de EORIMAG"}},
-        )
-        print(f"[checkout] service_key = {service_key} | price = {PRICE_MAP[service_key]}")
-        return jsonify({"checkout_url": checkout.url})
-    except Exception as e:
-        print("[err] Stripe create session:", e)
-        return jsonify({"error": "Eroare la crearea plății"}), 500
+    updateTotalFromKey(serviceKeyEl.value || 'eori_ro');
 
+    serviceGrid.addEventListener('click', (e) => {
+      const btn = e.target.closest('.service-card');
+      if (!btn) return;
 
+      document.querySelectorAll('.service-card').forEach(b => {
+        b.classList.remove('selected');
+        b.setAttribute('aria-pressed', 'false');
+      });
 
-@ app.get("/success")
-def success():
-    return render_template("success.html")
+      btn.classList.add('selected');
+      btn.setAttribute('aria-pressed', 'true');
 
-@ app.get("/cancel")
-def cancel():
-    return render_template("cancel.html")
+      const key = btn.dataset.key;
+      serviceKeyEl.value = key;
+      updateTotalFromKey(key);
+    });
 
-@ app.post("/webhook")
-def webhook():
-    payload = request.data
-    sig_header = request.headers.get("Stripe-Signature", "")
-    try:
-        event = stripe.Webhook.construct_event(payload, sig_header, STRIPE_WEBHOOK_SECRET)
-    except Exception as e:
-        print("[err] webhook verify:", e)
-        return "", 400
+    const canvas = document.getElementById('sigpad');
+    const ctx = canvas.getContext('2d');
+    let drawing = false;
+    let strokes = [];
+    let currentStroke = [];
 
-    print("[webhook] event type =", event.get("type"))
+    function resizeSigCanvas(){
+      const dpr = window.devicePixelRatio || 1;
+      const rect = canvas.getBoundingClientRect();
+      if (!canvas.style.width) canvas.style.width = '100%';
+      if (!canvas.style.height) canvas.style.height = '200px';
+      const cssWidth  = rect.width  || canvas.clientWidth  || 600;
+      const cssHeight = rect.height || canvas.clientHeight || 200;
+      canvas.width  = Math.max(1, Math.round(cssWidth * dpr));
+      canvas.height = Math.max(1, Math.round(cssHeight * dpr));
+      ctx.setTransform(1, 0, 0, 1, 0, 0);
+      ctx.scale(dpr, dpr);
+      redraw();
+    }
 
-    if event["type"] == "checkout.session.completed":
-        session = event["data"]["object"]
-        meta = session.get("metadata", {}) or {}
-        print("[webhook] checkout.session.completed meta:", meta)
+    function getPos(evt) {
+      const rect = canvas.getBoundingClientRect();
+      const t = evt.touches ? evt.touches[0] : evt;
+      return { x: (t.clientX - rect.left), y: (t.clientY - rect.top) };
+    }
 
-        if SEND_EMAIL:
-            try:
-                subject = f"[EORIMAG] Comandă PLĂTITĂ — {meta.get('full_name','-')}"
-                body = (
-                    f"Plată confirmată prin Stripe Checkout.\n\n"
-                    f"Serviciu: {meta.get('service_key','')}\n"
-                    f"Nume: {meta.get('full_name','')}\n"
-                    f"Companie: {meta.get('company','')}\n"
-                    f"Email: {meta.get('email','')}\n"
-                    f"Telefon: {meta.get('phone','')}\n"
-                    f"CNP/CUI: {meta.get('cnp_cui','')}\n"
-                    f"Notițe: {meta.get('notes','')}\n"
-                )
+    function redraw() {
+      ctx.clearRect(0,0,canvas.width,canvas.height);
+      ctx.lineWidth = 2 * (window.devicePixelRatio || 1);
+      ctx.lineJoin = 'round';
+      ctx.lineCap  = 'round';
+      ctx.strokeStyle = '#111';
+      strokes.forEach(st => {
+        ctx.beginPath();
+        st.forEach((p,i) => { if (i===0) ctx.moveTo(p.x,p.y); else ctx.lineTo(p.x,p.y); });
+        ctx.stroke();
+      });
+    }
 
-                attachments = []
-                uploads = (meta.get("uploads") or "").split(",") if meta.get("uploads") else []
-                for name in uploads:
-                    p = UPLOAD_DIR / name
-                    if p.exists():
-                        attachments.append(p)
+    function startDraw(evt) { drawing = true; currentStroke = []; currentStroke.push(getPos(evt)); evt.preventDefault(); }
+    function moveDraw(evt) {
+      if (!drawing) return;
+      currentStroke.push(getPos(evt));
+      redraw();
+      ctx.beginPath();
+      currentStroke.forEach((p,i)=>{ if(i===0) ctx.moveTo(p.x,p.y); else ctx.lineTo(p.x,p.y); });
+      ctx.stroke();
+      evt.preventDefault();
+    }
+    function endDraw(evt) {
+      if (!drawing) return;
+      drawing = false;
+      if (currentStroke.length > 1) { strokes.push(currentStroke); redraw(); }
+      evt && evt.preventDefault();
+    }
 
-                send_email_with_attachments(
-                    subject=subject,
-                    text=body,
-                    attachments=attachments,
-                    reply_to=meta.get("email", None),
-                )
-                print("[info] Post-payment email sent.")
-            except Exception as e:
-                print("[warn] email send failed:", e)
+    canvas.addEventListener('mousedown', startDraw);
+    canvas.addEventListener('mousemove', moveDraw);
+    window.addEventListener('mouseup', endDraw);
+    canvas.addEventListener('touchstart', startDraw, {passive:false});
+    canvas.addEventListener('touchmove', moveDraw, {passive:false});
+    canvas.addEventListener('touchend', endDraw);
+    document.getElementById('sigClear').addEventListener('click', () => { strokes = []; redraw(); });
+    document.getElementById('sigUndo').addEventListener('click', () => { strokes.pop(); redraw(); });
 
-    return "", 200
+    function canvasToDataURL() { return strokes.length ? canvas.toDataURL('image/png') : ''; }
 
-@ app.get("/healthz")
-def healthz():
-    return "ok", 200
+    resizeSigCanvas();
+    window.addEventListener('resize', resizeSigCanvas);
 
-if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=int(os.getenv("PORT", "5000")), debug=False)
+    const form = document.getElementById('orderForm');
+    const msg = document.getElementById('msg');
+    const sigHidden = document.getElementById('signature_data');
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      msg.textContent = '';
+      sigHidden.value = canvasToDataURL();
+      const fd = new FormData(form);
+      try {
+        const resp = await fetch('/create-checkout', { method: 'POST', body: fd });
+        const data = await resp.json();
+        if (!resp.ok || !data.checkout_url) throw new Error(data.error || 'Eroare la inițierea plății.');
+        window.location.href = data.checkout_url;
+      } catch (err) {
+        msg.textContent = err.message || 'A apărut o eroare. Reîncearcă.';
+      }
+    });
+  </script>
+</body>
+</html>
