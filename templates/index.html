@@ -24,6 +24,12 @@
   <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 
   <style>
+    body{
+      background:#1f1f1f;
+      color:#fff;
+      font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+    }
+
     .sticky-topbar{
       position:sticky;
       top:0;
@@ -32,19 +38,19 @@
       flex-wrap:wrap;
       gap:12px;
       align-items:center;
-      background:#fff;
-      border-bottom:1px solid #e5e7eb;
+      background:#1f1f1f;
+      border-bottom:1px solid #2a2a2a;
       padding:8px 12px;
       font-size:.9rem;
     }
     .topbar-link{
-      color:#1f2937;
+      color:#fff;
       text-decoration:none;
       padding:4px 0;
       font-weight:500;
       white-space:nowrap;
     }
-    .topbar-link:hover{color:#2563eb;}
+    .topbar-link:hover{color:#60a5fa;}
 
     header{
       max-width:1200px;
@@ -75,28 +81,37 @@
       }
     }
 
-    .left-info .logo-img{
-      width:64px;
-      height:auto;
-      margin-bottom:12px;
+    /* cardul informativ din stânga */
+    .left-info{
+      background:#0f3db4;
+      color:#fff;
+      border-radius:12px;
+      border:1px solid #1d4ed8;
+      box-shadow:0 10px 20px #0009;
+      padding:16px 20px 20px;
+    }
+    @media (max-width:900px){
+      .left-info{
+        order:2;
+      }
     }
     .left-info h1{
       font-size:2rem;
       font-weight:700;
       line-height:1.1;
-      color:#111;
+      color:#fff;
       margin:0 0 12px;
     }
     .left-info .tagline{
       font-size:1rem;
       line-height:1.4;
-      color:#333;
+      color:#fff;
       margin:0 0 16px;
     }
     .left-info ul{
       padding-left:20px;
       margin:0;
-      color:#111;
+      color:#fff;
       line-height:1.5;
       font-size:.95rem;
     }
@@ -104,12 +119,18 @@
       margin-bottom:6px;
     }
 
+    /* formularul din dreapta */
     .right-form{
-      background:#fff;
-      border:1px solid #e5e7eb;
+      background:#1f1f1f;
+      border:1px solid #2a2a2a;
       border-radius:12px;
       padding:16px;
-      box-shadow:0 2px 12px #3e4e7320;
+      box-shadow:0 10px 20px #0009;
+    }
+    @media (max-width:900px){
+      .right-form{
+        order:1;
+      }
     }
 
     .service-grid{
@@ -124,8 +145,8 @@
     .service-card{
       width:100%;
       text-align:left;
-      border:1px solid #d1d5db;
-      background:#f9fafb;
+      border:1px solid #444;
+      background:#1f1f1f;
       border-radius:10px;
       padding:12px;
       cursor:pointer;
@@ -136,13 +157,14 @@
       transition:all .15s;
       font-size:.9rem;
       line-height:1.3;
+      color:#fff;
     }
-    .service-card .title{font-weight:600;color:#111;}
-    .service-card .price{font-weight:500;color:#2563eb;}
+    .service-card .title{font-weight:600;color:#fff;}
+    .service-card .price{font-weight:500;color:#60a5fa;}
     .service-card.selected{
       border-color:#2563eb;
-      background:#eef2ff;
-      box-shadow:0 0 0 2px #c7d2fe;
+      box-shadow:0 0 0 2px #1d4ed8;
+      background:#0f172a;
     }
 
     .form-grid{
@@ -156,7 +178,7 @@
     label{
       font-size:.9rem;
       font-weight:600;
-      color:#111;
+      color:#fff;
       display:flex;
       flex-direction:column;
       gap:4px;
@@ -167,15 +189,21 @@
     input[type="file"],
     input[name="cnp_cui"]{
       width:100%;
-      border:1px solid #d1d5db;
+      border:1px solid #444;
+      background:#1f1f1f;
+      color:#fff;
       border-radius:8px;
       padding:10px 12px;
       font-size:.9rem;
       font-family:inherit;
     }
+    input::placeholder{
+      color:#777;
+    }
 
     .signature-block{
       margin-top:16px;
+      color:#fff;
     }
     .sig-header{
       display:flex;
@@ -184,18 +212,18 @@
     }
     .sig-header strong{
       font-size:.9rem;
-      color:#111;
+      color:#fff;
     }
     .sig-header .muted{
       font-size:.8rem;
-      color:#666;
+      color:#aaa;
       font-weight:400;
     }
     .sig-wrap{
-      border:1px solid #ccc;
+      border:1px solid #444;
       border-radius:8px;
       padding:8px;
-      background:#fff;
+      background:#1f1f1f;
       margin-top:8px;
     }
     .sig-actions{
@@ -208,8 +236,9 @@
     .sig-actions .secondary{
       padding:8px 10px;
       border-radius:6px;
-      border:1px solid #bbb;
-      background:#f7f7f7;
+      border:1px solid #555;
+      background:#2a2a2a;
+      color:#fff;
       cursor:pointer;
       font-size:.8rem;
     }
@@ -227,29 +256,41 @@
     }
     #payBtn:active{transform:scale(.99);}
 
-    .secondary{
+    .secondary-box{
       font-size:.85rem;
-      background:#f9fafb;
-      border:1px solid #d1d5db;
+      background:#1f1f1f;
+      color:#fff;
+      border:1px solid #444;
       border-radius:8px;
     }
 
     .terms-box a{
-      color:#2563eb;
+      color:#60a5fa;
       text-decoration:none;
       font-weight:500;
+    }
+    .terms-box{
+      color:#ccc !important;
+    }
+    .terms-box label{
+      color:#ccc !important;
+      font-weight:400;
+    }
+    .terms-box input[type="checkbox"]{
+      accent-color:#2563eb;
     }
 
     .reviews-section{
       max-width:1200px;
       margin:40px auto 24px;
       padding:0 16px;
+      color:#fff;
     }
     .reviews-section h2{
       font-size:1.2rem;
       font-weight:700;
       margin-bottom:16px;
-      color:#111;
+      color:#fff;
     }
     .reviews-container{
       display:grid;
@@ -257,13 +298,14 @@
       gap:16px;
     }
     .review{
-      border:1px solid #e5e7eb;
+      border:1px solid #2a2a2a;
       border-radius:10px;
-      background:#fff;
+      background:#1f1f1f;
       padding:12px;
       font-size:.9rem;
       line-height:1.4;
-      box-shadow:0 2px 8px #1f293714;
+      box-shadow:0 2px 8px #000c;
+      color:#fff;
     }
     .review-header{
       display:flex;
@@ -271,8 +313,9 @@
       justify-content:space-between;
       font-weight:600;
       margin-bottom:8px;
+      color:#fff;
     }
-    .review-name{color:#111;}
+    .review-name{color:#fff;}
     .review-stars{color:#facc15; font-size:.9rem;}
 
     .info-section{
@@ -281,13 +324,13 @@
       padding:0 16px;
       font-size:.95rem;
       line-height:1.5;
-      color:#111;
+      color:#fff;
     }
     .info-section h3{
       font-size:1.1rem;
       font-weight:700;
       margin-bottom:8px;
-      color:#111;
+      color:#fff;
       line-height:1.3;
     }
     .info-section ol,
@@ -303,17 +346,18 @@
       max-width:960px;
       margin:40px auto;
       padding:0 16px;
-      border-top:1px solid #e6e6e6;
+      border-top:1px solid #2a2a2a;
+      color:#fff;
     }
     .faq-title{
       font-size:1.2rem;
       font-weight:700;
       margin-bottom:16px;
       text-align:center;
-      color:#111;
+      color:#fff;
     }
     .faq-item{
-      border-bottom:1px solid #e6e6e6;
+      border-bottom:1px solid #2a2a2a;
       padding:0;
     }
     .faq-question{
@@ -330,17 +374,17 @@
       gap:10px;
       justify-content:space-between;
       font-weight:600;
-      color:#111;
+      color:#fff;
     }
     .faq-answer{
       padding:0 8px 12px;
       font-size:.9rem;
-      color:#333;
+      color:#ccc;
       line-height:1.4;
     }
     .faq-answer ul{margin:6px 0 6px 18px;}
     .faq-answer li{margin:4px 0;}
-    .faq-arrow{transition: transform .25s ease;}
+    .faq-arrow{transition: transform .25s ease; color:#fff;}
     .faq-item.open .faq-arrow{transform: rotate(90deg);}
 
     footer{
@@ -348,8 +392,13 @@
       padding:0 16px 40px;
       margin:40px auto 0;
       font-size:.85rem;
-      color:#555;
+      color:#aaa;
       line-height:1.4;
+    }
+    footer hr{
+      border:0;
+      border-top:1px solid #2a2a2a;
+      margin-bottom:16px;
     }
     .footer-bar-custom{
       display:flex;
@@ -365,7 +414,7 @@
       gap:6px;
     }
     .footer-links a{
-      color:#2563eb;
+      color:#60a5fa;
       text-decoration:none;
       font-weight:500;
       font-size:.9rem;
@@ -381,6 +430,9 @@
       max-height:40px;
       width:auto;
       display:block;
+      background:#fff;
+      border-radius:4px;
+      padding:4px;
     }
 
     #sigpad{
@@ -388,18 +440,20 @@
       height:200px;
       touch-action:none;
       display:block;
+      background:#0a0a0a;
+      border-radius:6px;
     }
 
     #msg{
       font-size:.85rem;
       min-height:1.2em;
-      color:#b91c1c;
+      color:#f87171;
     }
   </style>
 </head>
 <body>
 
-  <!-- top nav (doar linkuri interne, limba: ROMÂNĂ implicit) -->
+  <!-- top nav -->
   <div class="sticky-topbar" role="navigation" aria-label="Navigație în pagină">
     <a href="#ce-este" class="topbar-link">Ce este codul EORI?</a>
     <a href="#procedura" class="topbar-link">Procedura EORI</a>
@@ -407,7 +461,7 @@
     <a href="#faq" class="topbar-link">Întrebări frecvente</a>
   </div>
 
-  <!-- header - doar logo -->
+  <!-- header simplu, doar logo sus-stânga -->
   <header>
     <div class="logo-left">
       <img src="{{ url_for('static', filename='logo-eorimag.png') }}" alt="EORIMAG" class="responsive-logo" loading="lazy">
@@ -417,9 +471,9 @@
 
   <!-- layout 2 coloane -->
   <div class="layout-two-col">
-    <!-- Coloana stângă -->
+    <!-- Coloana stângă (card informativ) -->
     <aside class="left-info">
-      <img src="{{ url_for('static', filename='logo-eorimag.png') }}" alt="EORIMAG" class="logo-img" />
+      <!-- LOGO-UL DUBLU A FOST SCOS -->
       <h1>Simplu <br>100% online</h1>
       <p class="tagline">
         Completezi formularul, atașezi actele și semnezi — noi depunem solicitarea la autoritatea vamală. Primești confirmarea pe email.
@@ -488,11 +542,11 @@
         <!-- Upload documente -->
         <div class="uploads" style="margin-top:12px">
           <div>
-            <span>Carte de identitate – față (JPG/PNG/PDF) *</span>
+            <span style="color:#fff;font-size:.9rem;font-weight:600;">Carte de identitate – față (JPG/PNG/PDF) *</span>
             <input type="file" name="id_front" accept=".pdf,.jpg,.jpeg,.png" required>
           </div>
           <div>
-            <span>Carte de identitate – verso (opțional)</span>
+            <span style="color:#fff;font-size:.9rem;font-weight:600;">Carte de identitate – verso (opțional)</span>
             <input type="file" name="id_back" accept=".pdf,.jpg,.jpeg,.png">
           </div>
         </div>
@@ -502,19 +556,19 @@
 
           <!-- total -->
           <div style="display:flex; flex-wrap:wrap; gap:10px; align-items:center;">
-            <div id="totalBox" class="secondary" style="padding:10px 12px; border-radius:8px; border:1px solid #ddd;">
+            <div id="totalBox" class="secondary-box" style="padding:10px 12px; border-radius:8px; border:1px solid #444;">
               <strong>Total estimat:</strong> <span id="totalVal">—</span>
             </div>
           </div>
 
           <!-- checkbox termeni -->
-          <div class="terms-box" style="font-size:0.9rem; line-height:1.4; color:#333; display:flex; align-items:flex-start; gap:8px;">
+          <div class="terms-box" style="font-size:0.9rem; line-height:1.4; display:flex; align-items:flex-start; gap:8px;">
             <input
               type="checkbox"
               id="accept_terms"
               name="accept_terms"
               required
-              style="margin-top:3px; accent-color:#2563eb; flex-shrink:0;"
+              style="margin-top:3px; flex-shrink:0;"
             >
             <label for="accept_terms" style="cursor:pointer;">
               Confirm că am citit și sunt de acord cu
@@ -565,7 +619,7 @@
     </div>
   </section>
 
-  <!-- text SEO / educație -->
+  <!-- text info -->
   <section class="info-section">
     <h3>Obținere Cod EORI – Rapid, Online și Fără Bătăi de Cap</h3>
     <p>Dacă ai nevoie de <strong>cod EORI</strong> pentru ridicarea unui colet sau pentru import/export, ești în locul potrivit. La EORIMAG, <strong>procesul de aplicare</strong> este simplu și 100% online.</p>
@@ -607,55 +661,63 @@
   <!-- FAQ -->
   <section id="faq" class="faq-section" aria-labelledby="faq-titlu">
     <div class="faq-title" id="faq-titlu">Întrebări frecvente</div>
-    <!-- FAQ items (identic cu varianta anterioară) -->
+
     <div class="faq-item">
       <button class="faq-question" type="button" aria-expanded="false">
         Am nevoie de EORI pentru colete personale? <span class="faq-arrow" aria-hidden="true">▶</span>
       </button>
       <div class="faq-answer" hidden><p>Da, atunci când vama îl solicită pentru vămuirea unui colet sosit din afara UE.</p></div>
     </div>
+
     <div class="faq-item">
       <button class="faq-question" type="button" aria-expanded="false">
         În cât timp se obține codul EORI? <span class="faq-arrow" aria-hidden="true">▶</span>
       </button>
       <div class="faq-answer" hidden><p>De regulă 0–3 zile lucrătoare; procesarea finală este la autoritatea vamală și poate varia în funcție de volum.</p></div>
     </div>
+
     <div class="faq-item">
       <button class="faq-question" type="button" aria-expanded="false">
         Este valabil în toată UE? <span class="faq-arrow" aria-hidden="true">▶</span>
       </button>
       <div class="faq-answer" hidden><p>Da. După emitere, EORI este valabil în toate statele membre UE.</p></div>
     </div>
+
     <div class="faq-item">
       <button class="faq-question" type="button" aria-expanded="false">
         Mă ajutați și cu actualizarea unui EORI existent? <span class="faq-arrow" aria-hidden="true">▶</span>
       </button>
       <div class="faq-answer" hidden><p>Da. Îți indicăm documentele și pașii necesari pentru actualizare.</p></div>
     </div>
+
     <div class="faq-item">
       <button class="faq-question" type="button" aria-expanded="false">
         Ce se întâmplă dacă nu am un Cod EORI? <span class="faq-arrow" aria-hidden="true">▶</span>
       </button>
       <div class="faq-answer" hidden><p>Dacă ți-a venit în vamă un colet din afara U.E. și nu ai un cod EORI, marfa nu va putea ieși din vamă. Pot apărea costuri de depozitare până la prezentarea codului.</p></div>
     </div>
+
     <div class="faq-item">
       <button class="faq-question" type="button" aria-expanded="false">
         Am nevoie de Cod EORI dacă sunt plătitor de TVA? <span class="faq-arrow" aria-hidden="true">▶</span>
       </button>
       <div class="faq-answer" hidden><p>Da. Chiar dacă ești plătitor de TVA, pentru operațiuni de import/export ai nevoie de un cod EORI.</p></div>
     </div>
+
     <div class="faq-item">
       <button class="faq-question" type="button" aria-expanded="false">
         Când trebuie să aplici pentru un Cod EORI? <span class="faq-arrow" aria-hidden="true">▶</span>
       </button>
       <div class="faq-answer" hidden><p>La export – înainte de expedierea bunurilor. La import – când bunurile ajung în România, pentru plata taxelor vamale.</p></div>
     </div>
+
     <div class="faq-item">
       <button class="faq-question" type="button" aria-expanded="false">
         Cine are nevoie de un Cod EORI? <span class="faq-arrow" aria-hidden="true">▶</span>
       </button>
       <div class="faq-answer" hidden><p>Persoane fizice și firme care importă din afara UE sau exportă din UE către țări non-UE. Plata taxelor vamale se face în baza codului EORI.</p></div>
     </div>
+
     <div class="faq-item">
       <button class="faq-question" type="button" aria-expanded="false">
         De ce acte ai nevoie pentru a obține un Cod EORI? <span class="faq-arrow" aria-hidden="true">▶</span>
@@ -676,24 +738,28 @@
         </ul>
       </div>
     </div>
+
     <div class="faq-item">
       <button class="faq-question" type="button" aria-expanded="false">
         Cât timp este valabil numărul EORI? <span class="faq-arrow" aria-hidden="true">▶</span>
       </button>
       <div class="faq-answer" hidden><p>PF: până la 10 ani, dar nu peste valabilitatea CI. PJ: în principiu, nelimitat, cât timp datele sunt actuale.</p></div>
     </div>
+
     <div class="faq-item">
       <button class="faq-question" type="button" aria-expanded="false">
         Ce fac atunci când Codul EORI expiră? <span class="faq-arrow" aria-hidden="true">▶</span>
       </button>
       <div class="faq-answer" hidden><p>Se prelungește printr-o procedură similară cu actualizarea datelor. Te putem ajuta cu prelungirea.</p></div>
     </div>
+
     <div class="faq-item">
       <button class="faq-question" type="button" aria-expanded="false">
         Când trebuie să actualizez datele EORI? <span class="faq-arrow" aria-hidden="true">▶</span>
       </button>
       <div class="faq-answer" hidden><p>Ori de câte ori se schimbă datele personale sau ale firmei (nume, adresă, sediu, CAEN etc.).</p></div>
     </div>
+
     <div class="faq-item">
       <button class="faq-question" type="button" aria-expanded="false">
         Pot obține un EORI pentru o sucursală sau filială? <span class="faq-arrow" aria-hidden="true">▶</span>
@@ -797,7 +863,7 @@
       ctx.lineWidth = 2 * (window.devicePixelRatio || 1);
       ctx.lineJoin = 'round';
       ctx.lineCap  = 'round';
-      ctx.strokeStyle = '#111';
+      ctx.strokeStyle = '#fff';
       strokes.forEach(st => {
         ctx.beginPath();
         st.forEach((p,i) => {
