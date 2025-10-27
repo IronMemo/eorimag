@@ -46,15 +46,6 @@
     }
     .topbar-link:hover{color:#2563eb;}
 
-    .lang-inline a{
-      text-decoration:none;
-      font-weight:600;
-      color:#1f2937;
-    }
-    .lang-inline a.active{
-      color:#2563eb;
-    }
-
     header{
       max-width:1200px;
       margin:16px auto 24px;
@@ -68,20 +59,6 @@
       max-height:48px;
       height:auto;
       width:auto;
-    }
-    .logo-slogan{
-      font-size:.95rem;
-      font-weight:500;
-      color:#111;
-      background:#eef2ff;
-      border:1px solid #c7d2fe;
-      border-radius:8px;
-      padding:8px 12px;
-      display:inline-block;
-    }
-    .logo-bar{
-      flex:1;
-      min-width:200px;
     }
 
     .layout-two-col{
@@ -422,27 +399,18 @@
 </head>
 <body>
 
-  <!-- top nav -->
+  <!-- top nav (doar linkuri interne, limba: ROMÂNĂ implicit) -->
   <div class="sticky-topbar" role="navigation" aria-label="Navigație în pagină">
     <a href="#ce-este" class="topbar-link">Ce este codul EORI?</a>
     <a href="#procedura" class="topbar-link">Procedura EORI</a>
     <a href="#documente" class="topbar-link">Documente necesare</a>
     <a href="#faq" class="topbar-link">Întrebări frecvente</a>
-
-    <span class="lang-inline" style="margin-left:auto; display:inline-flex; gap:6px;">
-      <a class="active" href="#">RO</a>
-      <span aria-hidden="true">/</span>
-      <a href="#">EN</a>
-    </span>
   </div>
 
-  <!-- mini header branding -->
+  <!-- header - doar logo -->
   <header>
     <div class="logo-left">
       <img src="{{ url_for('static', filename='logo-eorimag.png') }}" alt="EORIMAG" class="responsive-logo" loading="lazy">
-    </div>
-    <div class="logo-bar">
-      <span class="logo-slogan">Ai coletul blocat în vamă și îți cer cod EORI?</span>
     </div>
     <nav aria-label="Principal"></nav>
   </header>
@@ -639,63 +607,55 @@
   <!-- FAQ -->
   <section id="faq" class="faq-section" aria-labelledby="faq-titlu">
     <div class="faq-title" id="faq-titlu">Întrebări frecvente</div>
-
+    <!-- FAQ items (identic cu varianta anterioară) -->
     <div class="faq-item">
       <button class="faq-question" type="button" aria-expanded="false">
         Am nevoie de EORI pentru colete personale? <span class="faq-arrow" aria-hidden="true">▶</span>
       </button>
       <div class="faq-answer" hidden><p>Da, atunci când vama îl solicită pentru vămuirea unui colet sosit din afara UE.</p></div>
     </div>
-
     <div class="faq-item">
       <button class="faq-question" type="button" aria-expanded="false">
         În cât timp se obține codul EORI? <span class="faq-arrow" aria-hidden="true">▶</span>
       </button>
       <div class="faq-answer" hidden><p>De regulă 0–3 zile lucrătoare; procesarea finală este la autoritatea vamală și poate varia în funcție de volum.</p></div>
     </div>
-
     <div class="faq-item">
       <button class="faq-question" type="button" aria-expanded="false">
         Este valabil în toată UE? <span class="faq-arrow" aria-hidden="true">▶</span>
       </button>
       <div class="faq-answer" hidden><p>Da. După emitere, EORI este valabil în toate statele membre UE.</p></div>
     </div>
-
     <div class="faq-item">
       <button class="faq-question" type="button" aria-expanded="false">
         Mă ajutați și cu actualizarea unui EORI existent? <span class="faq-arrow" aria-hidden="true">▶</span>
       </button>
       <div class="faq-answer" hidden><p>Da. Îți indicăm documentele și pașii necesari pentru actualizare.</p></div>
     </div>
-
     <div class="faq-item">
       <button class="faq-question" type="button" aria-expanded="false">
         Ce se întâmplă dacă nu am un Cod EORI? <span class="faq-arrow" aria-hidden="true">▶</span>
       </button>
       <div class="faq-answer" hidden><p>Dacă ți-a venit în vamă un colet din afara U.E. și nu ai un cod EORI, marfa nu va putea ieși din vamă. Pot apărea costuri de depozitare până la prezentarea codului.</p></div>
     </div>
-
     <div class="faq-item">
       <button class="faq-question" type="button" aria-expanded="false">
         Am nevoie de Cod EORI dacă sunt plătitor de TVA? <span class="faq-arrow" aria-hidden="true">▶</span>
       </button>
       <div class="faq-answer" hidden><p>Da. Chiar dacă ești plătitor de TVA, pentru operațiuni de import/export ai nevoie de un cod EORI.</p></div>
     </div>
-
     <div class="faq-item">
       <button class="faq-question" type="button" aria-expanded="false">
         Când trebuie să aplici pentru un Cod EORI? <span class="faq-arrow" aria-hidden="true">▶</span>
       </button>
       <div class="faq-answer" hidden><p>La export – înainte de expedierea bunurilor. La import – când bunurile ajung în România, pentru plata taxelor vamale.</p></div>
     </div>
-
     <div class="faq-item">
       <button class="faq-question" type="button" aria-expanded="false">
         Cine are nevoie de un Cod EORI? <span class="faq-arrow" aria-hidden="true">▶</span>
       </button>
       <div class="faq-answer" hidden><p>Persoane fizice și firme care importă din afara UE sau exportă din UE către țări non-UE. Plata taxelor vamale se face în baza codului EORI.</p></div>
     </div>
-
     <div class="faq-item">
       <button class="faq-question" type="button" aria-expanded="false">
         De ce acte ai nevoie pentru a obține un Cod EORI? <span class="faq-arrow" aria-hidden="true">▶</span>
@@ -716,28 +676,24 @@
         </ul>
       </div>
     </div>
-
     <div class="faq-item">
       <button class="faq-question" type="button" aria-expanded="false">
         Cât timp este valabil numărul EORI? <span class="faq-arrow" aria-hidden="true">▶</span>
       </button>
       <div class="faq-answer" hidden><p>PF: până la 10 ani, dar nu peste valabilitatea CI. PJ: în principiu, nelimitat, cât timp datele sunt actuale.</p></div>
     </div>
-
     <div class="faq-item">
       <button class="faq-question" type="button" aria-expanded="false">
         Ce fac atunci când Codul EORI expiră? <span class="faq-arrow" aria-hidden="true">▶</span>
       </button>
       <div class="faq-answer" hidden><p>Se prelungește printr-o procedură similară cu actualizarea datelor. Te putem ajuta cu prelungirea.</p></div>
     </div>
-
     <div class="faq-item">
       <button class="faq-question" type="button" aria-expanded="false">
         Când trebuie să actualizez datele EORI? <span class="faq-arrow" aria-hidden="true">▶</span>
       </button>
       <div class="faq-answer" hidden><p>Ori de câte ori se schimbă datele personale sau ale firmei (nume, adresă, sediu, CAEN etc.).</p></div>
     </div>
-
     <div class="faq-item">
       <button class="faq-question" type="button" aria-expanded="false">
         Pot obține un EORI pentru o sucursală sau filială? <span class="faq-arrow" aria-hidden="true">▶</span>
@@ -772,8 +728,8 @@
     const totalVal     = document.getElementById('totalVal');
 
     const PRICE_LABELS = {
-      eori_ro:     '75 RON',   // Persoană Fizică
-      eori_update: '99 RON',   // Persoană Juridică
+      eori_ro:     '75 RON',
+      eori_update: '99 RON',
       gb_eori:     '149 RON',
       resend:      '49 RON'
     };
@@ -784,10 +740,8 @@
       requestAnimationFrame(() => { totalVal.style.opacity = '1'; });
     }
 
-    // Setează totalul corect la load
     updateTotalFromKey(serviceKeyEl.value || 'eori_ro');
 
-    // Click pe card -> selectare + actualizare total
     serviceGrid.addEventListener('click', (e) => {
       const btn = e.target.closest('.service-card');
       if (!btn) return;
@@ -800,7 +754,7 @@
       btn.classList.add('selected');
       btn.setAttribute('aria-pressed', 'true');
 
-      const key = btn.dataset.key;  // eori_ro / eori_update ...
+      const key = btn.dataset.key;
       serviceKeyEl.value = key;
       updateTotalFromKey(key);
     });
@@ -809,7 +763,7 @@
     const canvas = document.getElementById('sigpad');
     const ctx = canvas.getContext('2d');
     let drawing = false;
-    let strokes = []; // pentru undo
+    let strokes = [];
     let currentStroke = [];
 
     function resizeSigCanvas(){
@@ -914,7 +868,6 @@
       e.preventDefault();
       msg.textContent = '';
 
-      // pune semnătura în hidden
       sigHidden.value = canvasToDataURL();
 
       const fd = new FormData(form);
@@ -924,7 +877,6 @@
         if (!resp.ok || !data.checkout_url) {
           throw new Error(data.error || 'Eroare la inițierea plății.');
         }
-        // redirect la Stripe Checkout
         window.location.href = data.checkout_url;
       } catch (err) {
         msg.textContent = err.message || 'A apărut o eroare. Reîncearcă.';
@@ -980,8 +932,6 @@
     ]
   }
   </script>
-
-  <!-- Notă: NU există script de chat / Tawk.to aici -->
 
 </body>
 </html>
