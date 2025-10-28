@@ -54,10 +54,10 @@ body {
 /* ---------- Logo ---------- */
 .logo-img {
   display: block;
-  height: 100px;       /* crește de la 56px → 80px */
+  height: 200px;       /* crește de la 56px → 80px */
   width: auto;        /* se ajustează automat */
   image-rendering: auto;
-  margin-bottom: 16px;
+  margin-bottom: 20px;
   transition: height 0.2s ease;
 }
 
