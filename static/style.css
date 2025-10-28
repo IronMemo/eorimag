@@ -54,7 +54,7 @@ body {
 /* ---------- Logo ---------- */
 .logo-img {
   display: block;
-  height: 80px;       /* crește de la 56px → 80px */
+  height: 100px;       /* crește de la 56px → 80px */
   width: auto;        /* se ajustează automat */
   image-rendering: auto;
   margin-bottom: 16px;
